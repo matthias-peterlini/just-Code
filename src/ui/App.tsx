@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Box, Static, Text, useApp, useInput } from 'ink';
 import TextInput from 'ink-text-input';
@@ -39,7 +42,7 @@ const COMMANDS: [string, string][] = [
   ['/help', 'show commands'],
   ['/login', 'log in with your Google account (Gemini)'],
   ['/logout', 'log out of Google'],
-  ['/google-client', '<client_id> <client_secret> [quota_project] — set the OAuth client'],
+  ['/google-client', '<client_secret.json> | <id> <secret> — override the built-in OAuth client'],
   ['/key', '<provider> <api_key> — save an API key (groq, openrouter, openai, gemini, custom)'],
   ['/baseurl', '<provider> <url> — custom OpenAI-compatible endpoint'],
   ['/model', '<orchestrator|sub> <provider:model> — choose models'],
@@ -249,11 +252,23 @@ export function App({ initialConfig, cwd, initialPrompt }: { initialConfig: Conf
         push({ kind: 'info', text: googleLogout() ? 'Logged out of Google.' : 'Not logged in.', color: C.gray });
         setAccount(undefined);
         break;
-      case '/google-client':
-        if (!args[0]) return push({ kind: 'error', text: 'Usage: /google-client <client_id> <client_secret> [quota_project]' });
-        setConfig({ ...cfg, google: { clientId: args[0], clientSecret: args[1], quotaProject: args[2] } });
+      case '/google-client': {
+        if (!args[0]) return push({ kind: 'error', text: 'Usage: /google-client <client_secret.json> | <client_id> <client_secret> [quota_project]' });
+        let google = { clientId: args[0], clientSecret: args[1], quotaProject: args[2] };
+        if (args[0].endsWith('.json')) {
+          try {
+            const file = args[0].replace(/^~(?=\/)/, os.homedir());
+            const j = JSON.parse(fs.readFileSync(path.resolve(cwd, file), 'utf8'));
+            const c = j.installed ?? j.web ?? j;
+            google = { clientId: c.client_id, clientSecret: c.client_secret, quotaProject: args[1] ?? c.project_id };
+          } catch (e) {
+            return push({ kind: 'error', text: `Cannot read ${args[0]}: ${(e as Error).message}` });
+          }
+        }
+        setConfig({ ...cfg, google });
         push({ kind: 'info', text: '✔ Google OAuth client saved. Now run /login.', color: C.green });
         break;
+      }
       case '/key': {
         const p = args[0] as ProviderId;
         if (!PROVIDER_IDS.includes(p) || !args[1]) return push({ kind: 'error', text: `Usage: /key <${PROVIDER_IDS.join('|')}> <api_key>` });

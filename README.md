@@ -33,14 +33,11 @@ Requisiti: Node.js ≥ 20 e un terminale con colori truecolor (iTerm2, Windows T
 
 Dentro just-Code scrivi **`/login`**: si apre il browser, accedi con il tuo account Google e il token viene salvato in `~/.just-code/google-auth.json` (si rinnova da solo).
 
-Per il login serve un **client OAuth** di Google, da creare una sola volta:
+just-Code include già l'ID del client OAuth (progetto Google Cloud "Just General"). Il client secret non è nel repository: caricalo una volta con `/google-client ~/Downloads/client_secret_xxx.json` (il file JSON scaricato dalla console), oppure inseriscilo in `BUILTIN_GOOGLE_CLIENT_SECRET` in `src/config.ts` prima della build. Poi `/login`.
 
-1. In [Google Cloud Console](https://console.cloud.google.com/) crea un progetto (o usane uno esistente) e abilita la **Generative Language API**.
-2. Vai in *APIs & Services → OAuth consent screen* e configura la schermata di consenso. Finché l'app è in modalità "Testing", aggiungi come *test users* gli account Google che useranno just-Code.
-3. Vai in *APIs & Services → Credentials → Create credentials → OAuth client ID*, tipo **Desktop app**.
-4. In just-Code: `/google-client <CLIENT_ID> <CLIENT_SECRET> [ID_PROGETTO]`, poi `/login`.
+> L'app OAuth è in modalità **Test**: possono accedere solo gli account aggiunti in *Google Auth Platform → Pubblico → Utenti di test*. Al login Google può mostrare "app non verificata": clicca *Avanzate → Continua*. Per aprirla a tutti, pubblica l'app e completa la verifica di Google.
 
-> Se distribuisci just-Code ad altri, inserisci il tuo client in `BUILTIN_GOOGLE_CLIENT_ID` e `BUILTIN_GOOGLE_CLIENT_SECRET` dentro `src/config.ts`: gli utenti dovranno solo fare `/login`.
+Per usare un tuo client OAuth (tipo **Desktop app**, con la *Gemini API* abilitata nel progetto): `/google-client ~/Downloads/client_secret_xxx.json` oppure `/google-client <CLIENT_ID> <CLIENT_SECRET>`.
 
 Alternativa senza login: `export GEMINI_API_KEY=...` (chiave da Google AI Studio) oppure `/key gemini <KEY>`.
 

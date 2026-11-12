@@ -41,7 +41,8 @@ export const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
  * If you publish just-Code, put your own Google OAuth "Desktop app" client here
  * so end users only have to click "Login with Google".
  */
-const BUILTIN_GOOGLE_CLIENT_ID = '';
+const BUILTIN_GOOGLE_CLIENT_ID = '600886543133-cdhl2pclnng4mdag0mh03vugt9p2lsam.apps.googleusercontent.com';
+// Fill in locally (or use /google-client <client_secret.json>); not committed to the repository.
 const BUILTIN_GOOGLE_CLIENT_SECRET = '';
 
 export const DEFAULT_BASE_URLS: Record<ProviderId, string> = {
