@@ -1,0 +1,7 @@
+name = "just-code-site"
+compatibility_date = "2025-01-01"
+account_id = "fdd8b5348ae948cc89bcbd8c896d3082"
+routes = [{ pattern = "code.justapps.it", custom_domain = true }]
+
+[assets]
+directory = "./public"

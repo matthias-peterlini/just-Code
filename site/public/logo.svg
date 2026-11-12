@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" shape-rendering="crispEdges">
+  <rect width="120" height="120" rx="26" fill="#111111"/>
+  <!-- pixel J -->
+  <rect x="20" y="26" width="46" height="10" fill="#F5F5F5"/>
+  <rect x="38" y="36" width="10" height="50" fill="#F5F5F5"/>
+  <rect x="20" y="72" width="9" height="9" fill="#F5F5F5"/>
+  <rect x="29" y="81" width="19" height="10" fill="#F5F5F5"/>
+  <!-- orange cursor -->
+  <rect x="76" y="26" width="22" height="66" fill="#F2541B"/>
+</svg>
