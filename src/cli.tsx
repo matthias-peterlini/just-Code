@@ -2,7 +2,10 @@
 import React from 'react';
 import { render } from 'ink';
 import { App } from './ui/App.js';
+import { createRequire } from 'node:module';
 import { loadConfig, parseModelRef } from './config.js';
+
+const VERSION: string = createRequire(import.meta.url)('../package.json').version;
 
 const HELP = `just-Code — terminal AI IDE (orchestrator + parallel sub-agents)
 
@@ -28,7 +31,7 @@ for (let i = 0; i < argv.length; i++) {
     console.log(HELP);
     process.exit(0);
   } else if (a === '-v' || a === '--version') {
-    console.log('just-Code 0.1.0');
+    console.log(`just-Code ${VERSION}`);
     process.exit(0);
   } else if (a === '--turbo') cfg.turbo = true;
   else if (a === '--orchestrator' || a === '--sub') {
@@ -45,6 +48,8 @@ for (let i = 0; i < argv.length; i++) {
 
 if (!process.stdin.isTTY) {
   console.error('just-Code needs an interactive terminal (TTY).');
+  if (process.platform === 'win32')
+    console.error('On Windows use Windows Terminal, PowerShell or cmd. In Git Bash/MinTTY run: winpty just-code');
   process.exit(1);
 }
 

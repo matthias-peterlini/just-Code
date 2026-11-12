@@ -1,6 +1,6 @@
 {
-  "name": "just-code",
-  "version": "0.1.0",
+  "name": "@justapps/just-code",
+  "version": "0.2.0",
   "description": "just-Code \u2014 terminal AI IDE: an orchestrator model that delegates to parallel sub-agents (Gemini, Groq, OpenRouter, any OpenAI-compatible API).",
   "type": "module",
   "bin": {
@@ -17,7 +17,8 @@
     "dev": "tsc -p . --watch",
     "start": "node dist/cli.js",
     "typecheck": "tsc -p . --noEmit",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "test": "node test/smoke.mjs"
   },
   "engines": {
     "node": ">=20"
@@ -47,5 +48,13 @@
     "openrouter",
     "terminal",
     "ide"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
   ]
 }

@@ -27,6 +27,38 @@ export interface Tool {
 }
 
 const MAX_OUT = 20_000;
+const isWin = process.platform === 'win32';
+/** Always report paths with forward slashes (stable across OSes, matches globs). */
+const toPosix = (p: string) => p.split(path.sep).join('/');
+
+/** The shell used by run_shell: cmd.exe on Windows, the user's POSIX shell elsewhere. */
+export function shellInfo(): { name: string; cmd: string; args: (command: string) => string[] } {
+  if (isWin) {
+    const cmd = process.env.ComSpec || 'cmd.exe';
+    return { name: 'cmd.exe', cmd, args: (c) => ['/d', '/s', '/c', `"${c}"`] };
+  }
+  const user = process.env.SHELL ?? '';
+  const ok = /(^|\/)(bash|zsh|sh|dash|ksh|fish)$/.test(user) && !user.endsWith('fish');
+  const cmd = ok ? user : '/bin/sh';
+  return { name: path.basename(cmd), cmd, args: (c) => ['-c', c] };
+}
+
+function killTree(pid: number | undefined) {
+  if (!pid) return;
+  if (isWin) {
+    spawn('taskkill', ['/pid', String(pid), '/T', '/F'], { windowsHide: true }).on('error', () => {});
+  } else {
+    try {
+      process.kill(-pid, 'SIGTERM');
+    } catch {
+      try {
+        process.kill(pid, 'SIGTERM');
+      } catch {
+        /* already gone */
+      }
+    }
+  }
+}
 const clip = (s: string, n = MAX_OUT) => (s.length > n ? s.slice(0, n) + `\n…[truncated ${s.length - n} chars]` : s);
 const IGNORE = new Set(['node_modules', '.git', 'dist', 'build', '.next', '.venv', '__pycache__', 'target']);
 
@@ -50,7 +82,7 @@ async function walk(dir: string, root: string, out: string[], limit: number) {
     if (IGNORE.has(e.name)) continue;
     const full = path.join(dir, e.name);
     if (e.isDirectory()) await walk(full, root, out, limit);
-    else out.push(path.relative(root, full));
+    else out.push(toPosix(path.relative(root, full)));
   }
 }
 
@@ -89,7 +121,7 @@ export const TOOLS: Record<string, Tool> = {
     summarize: (a) => String(a.path),
     async run(a, ctx) {
       const text = await fs.readFile(safePath(ctx.cwd, a.path), 'utf8');
-      const lines = text.split('\n');
+      const lines = text.replace(/\r\n/g, '\n').split('\n');
       const start = Math.max(1, Number(a.offset) || 1);
       const end = a.limit ? start + Number(a.limit) - 1 : lines.length;
       return clip(lines.slice(start - 1, end).map((l, i) => `${String(start + i).padStart(5)}  ${l}`).join('\n'));
@@ -204,6 +236,10 @@ export const TOOLS: Record<string, Tool> = {
     async run(a, ctx) {
       const p = safePath(ctx.cwd, a.path);
       const text = await fs.readFile(p, 'utf8');
+      // Files with Windows line endings: models send \n, so match/replace using \r\n.
+      const crlf = text.includes('\r\n');
+      const fix = (v: unknown) => (crlf ? String(v).replace(/\r?\n/g, '\r\n') : String(v));
+      a = { ...a, old_string: fix(a.old_string), new_string: fix(a.new_string) };
       const count = text.split(String(a.old_string)).length - 1;
       if (count === 0) return 'ERROR: old_string not found.';
       if (count > 1) return `ERROR: old_string found ${count} times; include more context.`;
@@ -223,7 +259,7 @@ export const TOOLS: Record<string, Tool> = {
     dangerous: true,
     def: {
       name: 'run_shell',
-      description: 'Run a shell command in the workspace (timeout 120s). Returns exit code, stdout and stderr.',
+      description: `Run a shell command in the workspace with ${isWin ? 'cmd.exe (Windows)' : 'a POSIX shell'} (default timeout 120s). Returns exit code, stdout and stderr.`,
       parameters: {
         type: 'object',
         properties: { command: { type: 'string' }, timeout_sec: { type: 'integer' } },
@@ -236,21 +272,28 @@ export const TOOLS: Record<string, Tool> = {
       if (!ok) return 'DENIED by user.';
       const timeout = Math.min(Number(a.timeout_sec) || 120, 600) * 1000;
       return new Promise((resolve) => {
-        const isWin = process.platform === 'win32';
-        const child = spawn(isWin ? 'cmd' : 'bash', isWin ? ['/c', String(a.command)] : ['-lc', String(a.command)], {
+        const sh = shellInfo();
+        const child = spawn(sh.cmd, sh.args(String(a.command)), {
           cwd: ctx.cwd,
           env: process.env,
+          windowsHide: true,
+          windowsVerbatimArguments: isWin,
+          detached: !isWin, // own process group so we can kill children on timeout
         });
         let out = '';
         let err = '';
         child.stdout.on('data', (d) => (out += d));
         child.stderr.on('data', (d) => (err += d));
-        const kill = () => child.kill('SIGTERM');
-        const t = setTimeout(kill, timeout);
-        ctx.signal?.addEventListener('abort', kill);
+        let killed = '';
+        const kill = (why: string) => {
+          killed = why;
+          killTree(child.pid);
+        };
+        const t = setTimeout(() => kill(`timed out after ${timeout / 1000}s`), timeout);
+        ctx.signal?.addEventListener('abort', () => kill('interrupted'));
         child.on('close', (code) => {
           clearTimeout(t);
-          resolve(clip(`exit ${code}\n--- stdout ---\n${out}\n--- stderr ---\n${err}`));
+          resolve(clip(`exit ${code}${killed ? ` (${killed})` : ''}\n--- stdout ---\n${out}\n--- stderr ---\n${err}`));
         });
         child.on('error', (e) => resolve(`ERROR: ${e.message}`));
       });

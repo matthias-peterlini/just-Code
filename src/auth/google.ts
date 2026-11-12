@@ -58,14 +58,19 @@ export function googleLogout(): boolean {
 }
 
 function openBrowser(url: string) {
-  const cmd = process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'cmd' : 'xdg-open';
-  const args = process.platform === 'win32' ? ['/c', 'start', '""', url] : [url];
+  // Windows: `start` in cmd would cut the URL at the first "&", so use the URL protocol handler.
+  const [cmd, args] =
+    process.platform === 'win32'
+      ? ['rundll32', ['url.dll,FileProtocolHandler', url]]
+      : process.platform === 'darwin'
+        ? ['open', [url]]
+        : ['xdg-open', [url]];
   try {
-    const child = spawn(cmd, args, { stdio: 'ignore', detached: true });
+    const child = spawn(cmd, args as string[], { stdio: 'ignore', detached: true, windowsHide: true });
     child.on('error', () => {});
     child.unref();
   } catch {
-    /* user can copy the URL */
+    /* the URL is also shown in the UI */
   }
 }
 

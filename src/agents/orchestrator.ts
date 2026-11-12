@@ -2,7 +2,7 @@ import { EventEmitter } from 'node:events';
 import { fmtRef, parseModelRef, type Config, type ModelRef } from '../config.js';
 import { createProvider } from '../providers/index.js';
 import type { Message } from '../providers/types.js';
-import { TOOLS, type PermissionRequest, type ToolContext } from '../tools/index.js';
+import { TOOLS, shellInfo, type PermissionRequest, type ToolContext } from '../tools/index.js';
 import { runLoop, type LoopTool } from './loop.js';
 
 export type AgentStatus = 'queued' | 'running' | 'done' | 'error';
@@ -19,7 +19,7 @@ export type JustEvent =
   | { type: 'usage'; input: number; output: number };
 
 const ORCH_SYSTEM = (cwd: string) => `You are the ORCHESTRATOR of just-Code, a terminal coding IDE.
-Workspace: ${cwd}. OS: ${process.platform}. Date: ${new Date().toISOString().slice(0, 10)}.
+Workspace: ${cwd}. OS: ${process.platform}. Shell for run_shell: ${shellInfo().name}. Date: ${new Date().toISOString().slice(0, 10)}.
 
 Your job: understand the user's request, plan, and DELEGATE work to sub-agents with the spawn_agents tool.
 - Split the work into small, independent, well-scoped tasks (e.g. "explore src/auth and summarise how login works",
@@ -33,7 +33,7 @@ Your job: understand the user's request, plan, and DELEGATE work to sub-agents w
 Reply in the user's language. Use Markdown sparingly (terminal output).`;
 
 const SUB_SYSTEM = (cwd: string, name: string) => `You are "${name}", a focused sub-agent inside just-Code (terminal coding IDE).
-Workspace: ${cwd}. OS: ${process.platform}.
+Workspace: ${cwd}. OS: ${process.platform}. Shell for run_shell: ${shellInfo().name} (use commands valid for it).
 Complete ONLY the task you were given, using your tools. Read before you edit. Keep changes minimal and consistent with the codebase.
 When done, reply with a short report: what you did, files touched, anything the orchestrator must know (problems, follow-ups).`;
 

@@ -20,14 +20,25 @@ Provider supportati: **Google Gemini** (login con account Google oppure API key)
 
 ## Installazione
 
+Funziona su **macOS, Linux e Windows** con Node.js 20 o successivo.
+
 ```bash
-npm install
-npm run build
-npm link            # opzionale: rende disponibili i comandi `just-code` e `jc`
-just-code           # avvia nella cartella corrente
+npm install -g @justapps/just-code
+just-code            # oppure: jc
 ```
 
-Requisiti: Node.js ≥ 20 e un terminale con colori truecolor (iTerm2, Windows Terminal, Ghostty, Kitty, terminale di VS Code…).
+In alternativa:
+- macOS e Linux: `curl -fsSL https://code.justapps.it/install.sh | sh`
+- Windows (PowerShell): `irm https://code.justapps.it/install.ps1 | iex`
+- Ultima release da GitHub: `npm install -g https://code.justapps.it/latest.tgz`
+
+I comandi degli agenti girano con la tua shell su macOS e Linux, con `cmd.exe` su Windows. In Git Bash su Windows avvia con `winpty just-code`.
+
+Da sorgente: `npm install && npm run build && npm link`.
+
+## Release
+
+Ad ogni push GitHub Actions esegue i test su Linux, macOS e Windows (Node 20 e 22). Se la versione in `package.json` non è ancora pubblicata, crea la release su GitHub e pubblica su npm. Per npm serve il secret `NPM_TOKEN` nel repository.
 
 ## Accesso a Gemini con login Google
 

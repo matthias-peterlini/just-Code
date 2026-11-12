@@ -1,6 +1,7 @@
 # just-Code installer for Windows — https://code.justapps.it
 # Usage: irm https://code.justapps.it/install.ps1 | iex
 $ErrorActionPreference = 'Stop'
+$pkg = '@justapps/just-code'
 $url = 'https://code.justapps.it/latest.tgz'
 Write-Host '▌ just-Code installer' -ForegroundColor DarkYellow
 Write-Host ''
@@ -16,9 +17,13 @@ if ($major -lt 20) {
   return
 }
 
-Write-Host "-> npm install -g $url" -ForegroundColor DarkGray
-npm install -g $url
-if ($LASTEXITCODE -ne 0) { Write-Host 'npm install failed.' -ForegroundColor Red; return }
+Write-Host "-> npm install -g $pkg" -ForegroundColor DarkGray
+npm install -g $pkg
+if ($LASTEXITCODE -ne 0) {
+  Write-Host 'npm registry install failed, trying the latest GitHub release...' -ForegroundColor DarkGray
+  npm install -g $url
+  if ($LASTEXITCODE -ne 0) { Write-Host 'npm install failed.' -ForegroundColor Red; return }
+}
 
 Write-Host ''
 Write-Host 'Installed. Run just-code (or jc) inside a project, then type /login.' -ForegroundColor DarkYellow
