@@ -412,7 +412,7 @@ function StatusBar({ config, tokens, account }: { config: Config; tokens: { inpu
   );
 }
 
-function ItemView({ it, config, cwd }: { it: Item; config: Config; cwd: string }) {
+export function ItemView({ it, config, cwd }: { it: Item; config: Config; cwd: string }) {
   switch (it.kind) {
     case 'header':
       return (
