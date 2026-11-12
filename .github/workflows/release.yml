@@ -81,7 +81,7 @@ jobs:
             echo "::warning::NPM_TOKEN secret is not set - skipping npm publish. Add it in Settings > Secrets and variables > Actions, then re-run this workflow."
             exit 0
           fi
-          npm publish out/just-code.tgz --access public --provenance
+          npm publish ./out/just-code.tgz --access public --provenance
 
       - name: Publish GitHub release
         if: steps.state.outputs.gh == 'true'
