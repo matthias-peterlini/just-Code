@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy · just-Code</title>
+<meta name="description" content="Informativa sulla privacy di just-Code">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* palette and type from justos.dev */
+  --paper:#f2efe6; --ink:#141414; --muted:#6b675d; --rule:#cfc9b8; --soft:#e9e5d8;
+  --orange:#ff5a1f; --term:#141414; --termline:#2b2a26;
+  --text:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --tt:var(--text);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--paper:#141414;--ink:#f2efe6;--muted:#a29d91;--rule:#3a3832;--soft:#1e1d1a;--term:#0d0d0c;--termline:#3a3832}
+}
+:root[data-theme="dark"]{--paper:#141414;--ink:#f2efe6;--muted:#a29d91;--rule:#3a3832;--soft:#1e1d1a;--term:#0d0d0c;--termline:#3a3832}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.7 var(--text);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{color:var(--orange)}
+::selection{background:var(--orange);color:#fff}
+.page{max-width:1000px;margin:0 auto;padding:0 24px}
+@media (max-width:560px){.page{padding:0 16px}body{font-size:14px}}
+
+/* top line */
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 0;border-bottom:1px solid var(--rule);font-size:13px}
+.top .id{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:700}
+.top .id img{width:22px;height:22px;display:block}
+.top nav{display:flex;gap:20px;color:var(--muted)}
+.top nav a{text-decoration:none}
+@media (max-width:560px){.top nav .hide{display:none}}
+
+/* hero */
+.hero{padding:64px 0 28px}
+.wordmark{display:block;width:min(600px,100%);height:auto}
+.wordmark .ink{fill:var(--ink)}
+.wordmark .cur{fill:var(--orange);animation:blink 1.1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.lede{font-size:clamp(17px,2.2vw,21px);line-height:1.55;max-width:42ch;margin:32px 0 0}
+.lede em{font-style:normal;color:var(--orange)}
+
+.cmd{display:flex;align-items:stretch;margin-top:28px;border:1px solid var(--ink);max-width:640px}
+.cmd code{flex:1;padding:12px 14px;font:14px var(--text);overflow-x:auto;white-space:nowrap}
+.cmd code::before{content:"$ ";color:var(--muted)}
+.cmd button{font:inherit;font-size:13px;border:0;border-left:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:0 16px;cursor:pointer}
+.cmd button:hover{background:var(--orange);border-color:var(--orange)}
+.alt{margin-top:10px;font-size:13px;color:var(--muted)}
+
+/* terminal */
+.term{margin-top:44px;background:var(--term);color:#f2efe6;border:1px solid var(--termline)}
+.term .tb{display:flex;justify-content:space-between;gap:12px;padding:8px 14px;border-bottom:1px solid var(--termline);font:12px var(--text);color:#77746e}
+.term pre{margin:0;padding:16px 14px 18px;font-family:var(--tt);font-size:clamp(6.4px,calc((100vw - 64px) / 47.5),13.4px);line-height:1.38;white-space:pre;overflow:hidden}
+.term pre.short{min-height:0}
+.cap{font-size:12.5px;color:var(--muted);margin:10px 0 0}
+.cap button{font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
+/* man sections */
+.sec{display:grid;grid-template-columns:180px 1fr;gap:24px;padding:44px 0;border-top:1px solid var(--rule)}
+.sec:first-of-type{margin-top:56px}
+@media (max-width:760px){.sec{grid-template-columns:1fr;gap:10px;padding:34px 0}}
+.sec>h2{margin:0;font-size:13px;font-weight:700;letter-spacing:.08em;line-height:1.9}
+.sec>h2 small{display:block;font-weight:400;letter-spacing:0;color:var(--muted)}
+.body{min-width:0;max-width:68ch}
+.body p{margin:0 0 14px}
+.body p:last-child{margin-bottom:0}
+.body .muted{color:var(--muted)}
+code.i{background:var(--soft);padding:1px 5px;font-size:.92em}
+.syn{font-size:15px;line-height:1.9}
+.syn b{font-weight:700}
+.syn i{font-style:italic;color:var(--muted)}
+
+.diagram{font-family:var(--tt);font-size:clamp(9px,2.2vw,13.5px);line-height:1.45;white-space:pre;margin:4px 0 24px;overflow:hidden}
+.diagram .o{color:var(--orange)}
+.diagram .m{color:var(--muted)}
+
+ol.n{list-style:none;counter-reset:n;margin:0;padding:0}
+ol.n li{counter-increment:n;display:grid;grid-template-columns:3ch 1fr;gap:8px;margin-bottom:12px}
+ol.n li::before{content:counter(n)".";color:var(--orange)}
+
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:700;font-size:12px;letter-spacing:.06em;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--ink)}
+td{padding:9px 12px 9px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+td:first-child{white-space:nowrap;font-weight:500}
+.tw{overflow-x:auto}
+.ok{color:var(--muted)}
+.ask{color:var(--orange)}
+
+pre.block{margin:4px 0 16px;background:var(--soft);padding:14px 16px;font:13.5px/1.75 var(--text);overflow-x:auto}
+pre.block .c{color:var(--muted)}
+.label{font-size:12px;letter-spacing:.06em;color:var(--muted);margin:22px 0 6px}
+.label:first-child{margin-top:0}
+
+.foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:22px 0 40px;border-top:1px solid var(--ink);margin-top:20px;font-size:13px;color:var(--muted)}
+
+@media (prefers-reduced-motion:reduce){.wordmark .cur{animation:none}}
+.legal h1{font-size:clamp(26px,4vw,36px);line-height:1.2;margin:48px 0 10px;letter-spacing:-.01em}
+.legal .date{color:var(--muted);font-size:13px;margin:0 0 8px}
+.legal h3{font-size:14px;margin:22px 0 6px}
+.legal ul{margin:0 0 14px;padding-left:20px}
+.legal li{margin-bottom:6px}
+.lang{font-size:12px;letter-spacing:.06em;color:var(--muted);margin:56px 0 0;padding-top:20px;border-top:1px solid var(--rule)}
+</style>
+</head>
+<body>
+<div class="page">
+<header class="top">
+  <a class="id" href="/"><img src="logo.svg" alt="">just-Code</a>
+  <nav><a href="/privacy">privacy</a><a href="/termini">termini</a><a href="https://github.com/matthias-peterlini/just-Code">github</a></nav>
+</header>
+<main class="legal body" style="max-width:72ch">
+
+<h1>Informativa sulla privacy</h1>
+<p class="date">Ultimo aggiornamento: 13 novembre 2026</p>
+
+<p>just-Code è un programma che installi e usi sul tuo computer. Questa pagina spiega quali dati tratta, in particolare quando accedi con il tuo account Google.</p>
+
+<h3>Nessun server di just-Code</h3>
+<p>just-Code non ha un proprio server che riceve i tuoi dati. Il codice, le richieste e le risposte passano direttamente dal tuo computer al fornitore di modelli che scegli (Google Gemini, Groq, OpenRouter, OpenAI o un endpoint configurato da te).</p>
+
+<h3>Accesso con Google</h3>
+<ul>
+  <li>Quando usi <code class="i">/login</code>, Google ti chiede il consenso per gli ambiti <code class="i">openid</code>, <code class="i">email</code>, <code class="i">cloud-platform</code> e <code class="i">generative-language.retriever</code>.</li>
+  <li>just-Code usa il token ricevuto solo per inviare a Gemini (Generative Language API) le richieste che fai tu, e il tuo indirizzo email solo per mostrarti con quale account sei collegato.</li>
+  <li>Il token di accesso e di aggiornamento è salvato solo sul tuo computer, in <code class="i">~/.just-code/google-auth.json</code>. Non viene inviato a nessun altro.</li>
+  <li>Non usiamo i dati del tuo account Google per pubblicità, profilazione o addestramento di modelli, e non li vendiamo né li condividiamo con terzi.</li>
+  <li>Puoi revocare l'accesso in qualsiasi momento con <code class="i">/logout</code>, che cancella il token locale, oppure da <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.</li>
+</ul>
+<p>L'uso delle informazioni ricevute dalle API di Google rispetta le <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, inclusi i requisiti di uso limitato (Limited Use).</p>
+
+<h3>Dati inviati ai fornitori di modelli</h3>
+<p>Per rispondere alle tue richieste, just-Code invia al fornitore scelto il testo che scrivi e le parti dei file del progetto che gli agenti leggono. Il trattamento di questi dati da parte del fornitore è regolato dalle sue condizioni (per Gemini, le <a href="https://ai.google.dev/gemini-api/terms">condizioni dell'API Gemini</a>).</p>
+
+<h3>Dati salvati sul tuo computer</h3>
+<ul>
+  <li><code class="i">~/.just-code/config.json</code>: modelli scelti, eventuali API key, impostazioni.</li>
+  <li><code class="i">~/.just-code/google-auth.json</code>: token dell'accesso Google.</li>
+</ul>
+<p>Per cancellarli basta eliminare la cartella <code class="i">~/.just-code</code>.</p>
+
+<h3>Questo sito</h3>
+<p>code.justapps.it non usa cookie né strumenti di analisi. È servito da Cloudflare, che può registrare dati tecnici come l'indirizzo IP per sicurezza e funzionamento; i caratteri sono caricati da Google Fonts.</p>
+
+<h3>Contatti</h3>
+<p>Per domande sulla privacy: <a href="https://github.com/matthias-peterlini/just-Code/issues">github.com/matthias-peterlini/just-Code/issues</a>.</p>
+
+<p class="lang">ENGLISH</p>
+<h1>Privacy policy</h1>
+<p class="date">Last updated: 13 November 2026</p>
+<p>just-Code is a program you install and run on your own computer. It has no server of its own that receives your data: prompts, code and responses go directly from your computer to the model provider you choose (Google Gemini, Groq, OpenRouter, OpenAI or an endpoint you configure).</p>
+<h3>Google sign-in</h3>
+<ul>
+  <li>With <code class="i">/login</code> you grant the scopes <code class="i">openid</code>, <code class="i">email</code>, <code class="i">cloud-platform</code> and <code class="i">generative-language.retriever</code>.</li>
+  <li>The token is used only to send your own requests to Gemini (Generative Language API); your email address is used only to show which account is connected.</li>
+  <li>Access and refresh tokens are stored only on your computer, in <code class="i">~/.just-code/google-auth.json</code>, and are never sent anywhere else.</li>
+  <li>Google user data is not used for advertising, profiling or model training, and is not sold or shared with third parties.</li>
+  <li>Revoke access at any time with <code class="i">/logout</code> or at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.</li>
+</ul>
+<p>just-Code's use of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+<h3>This website</h3>
+<p>code.justapps.it uses no cookies or analytics. It is served by Cloudflare, which may log technical data such as IP addresses; fonts are loaded from Google Fonts.</p>
+<h3>Contact</h3>
+<p><a href="https://github.com/matthias-peterlini/just-Code/issues">github.com/matthias-peterlini/just-Code/issues</a></p>
+</main>
+<footer class="foot">
+  <span>just-Code</span>
+  <span><a href="/">code.justapps.it</a> · <a href="/privacy">privacy</a> · <a href="/termini">termini</a></span>
+  <span>JUST-CODE(1)</span>
+</footer>
+</div>
+</body>
+</html>

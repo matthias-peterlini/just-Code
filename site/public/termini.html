@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Termini · just-Code</title>
+<meta name="description" content="Termini di servizio di just-Code">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* palette and type from justos.dev */
+  --paper:#f2efe6; --ink:#141414; --muted:#6b675d; --rule:#cfc9b8; --soft:#e9e5d8;
+  --orange:#ff5a1f; --term:#141414; --termline:#2b2a26;
+  --text:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --tt:var(--text);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--paper:#141414;--ink:#f2efe6;--muted:#a29d91;--rule:#3a3832;--soft:#1e1d1a;--term:#0d0d0c;--termline:#3a3832}
+}
+:root[data-theme="dark"]{--paper:#141414;--ink:#f2efe6;--muted:#a29d91;--rule:#3a3832;--soft:#1e1d1a;--term:#0d0d0c;--termline:#3a3832}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.7 var(--text);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{color:var(--orange)}
+::selection{background:var(--orange);color:#fff}
+.page{max-width:1000px;margin:0 auto;padding:0 24px}
+@media (max-width:560px){.page{padding:0 16px}body{font-size:14px}}
+
+/* top line */
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 0;border-bottom:1px solid var(--rule);font-size:13px}
+.top .id{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:700}
+.top .id img{width:22px;height:22px;display:block}
+.top nav{display:flex;gap:20px;color:var(--muted)}
+.top nav a{text-decoration:none}
+@media (max-width:560px){.top nav .hide{display:none}}
+
+/* hero */
+.hero{padding:64px 0 28px}
+.wordmark{display:block;width:min(600px,100%);height:auto}
+.wordmark .ink{fill:var(--ink)}
+.wordmark .cur{fill:var(--orange);animation:blink 1.1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.lede{font-size:clamp(17px,2.2vw,21px);line-height:1.55;max-width:42ch;margin:32px 0 0}
+.lede em{font-style:normal;color:var(--orange)}
+
+.cmd{display:flex;align-items:stretch;margin-top:28px;border:1px solid var(--ink);max-width:640px}
+.cmd code{flex:1;padding:12px 14px;font:14px var(--text);overflow-x:auto;white-space:nowrap}
+.cmd code::before{content:"$ ";color:var(--muted)}
+.cmd button{font:inherit;font-size:13px;border:0;border-left:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:0 16px;cursor:pointer}
+.cmd button:hover{background:var(--orange);border-color:var(--orange)}
+.alt{margin-top:10px;font-size:13px;color:var(--muted)}
+
+/* terminal */
+.term{margin-top:44px;background:var(--term);color:#f2efe6;border:1px solid var(--termline)}
+.term .tb{display:flex;justify-content:space-between;gap:12px;padding:8px 14px;border-bottom:1px solid var(--termline);font:12px var(--text);color:#77746e}
+.term pre{margin:0;padding:16px 14px 18px;font-family:var(--tt);font-size:clamp(6.4px,calc((100vw - 64px) / 47.5),13.4px);line-height:1.38;white-space:pre;overflow:hidden}
+.term pre.short{min-height:0}
+.cap{font-size:12.5px;color:var(--muted);margin:10px 0 0}
+.cap button{font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
+/* man sections */
+.sec{display:grid;grid-template-columns:180px 1fr;gap:24px;padding:44px 0;border-top:1px solid var(--rule)}
+.sec:first-of-type{margin-top:56px}
+@media (max-width:760px){.sec{grid-template-columns:1fr;gap:10px;padding:34px 0}}
+.sec>h2{margin:0;font-size:13px;font-weight:700;letter-spacing:.08em;line-height:1.9}
+.sec>h2 small{display:block;font-weight:400;letter-spacing:0;color:var(--muted)}
+.body{min-width:0;max-width:68ch}
+.body p{margin:0 0 14px}
+.body p:last-child{margin-bottom:0}
+.body .muted{color:var(--muted)}
+code.i{background:var(--soft);padding:1px 5px;font-size:.92em}
+.syn{font-size:15px;line-height:1.9}
+.syn b{font-weight:700}
+.syn i{font-style:italic;color:var(--muted)}
+
+.diagram{font-family:var(--tt);font-size:clamp(9px,2.2vw,13.5px);line-height:1.45;white-space:pre;margin:4px 0 24px;overflow:hidden}
+.diagram .o{color:var(--orange)}
+.diagram .m{color:var(--muted)}
+
+ol.n{list-style:none;counter-reset:n;margin:0;padding:0}
+ol.n li{counter-increment:n;display:grid;grid-template-columns:3ch 1fr;gap:8px;margin-bottom:12px}
+ol.n li::before{content:counter(n)".";color:var(--orange)}
+
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:700;font-size:12px;letter-spacing:.06em;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--ink)}
+td{padding:9px 12px 9px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+td:first-child{white-space:nowrap;font-weight:500}
+.tw{overflow-x:auto}
+.ok{color:var(--muted)}
+.ask{color:var(--orange)}
+
+pre.block{margin:4px 0 16px;background:var(--soft);padding:14px 16px;font:13.5px/1.75 var(--text);overflow-x:auto}
+pre.block .c{color:var(--muted)}
+.label{font-size:12px;letter-spacing:.06em;color:var(--muted);margin:22px 0 6px}
+.label:first-child{margin-top:0}
+
+.foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:22px 0 40px;border-top:1px solid var(--ink);margin-top:20px;font-size:13px;color:var(--muted)}
+
+@media (prefers-reduced-motion:reduce){.wordmark .cur{animation:none}}
+.legal h1{font-size:clamp(26px,4vw,36px);line-height:1.2;margin:48px 0 10px;letter-spacing:-.01em}
+.legal .date{color:var(--muted);font-size:13px;margin:0 0 8px}
+.legal h3{font-size:14px;margin:22px 0 6px}
+.legal ul{margin:0 0 14px;padding-left:20px}
+.legal li{margin-bottom:6px}
+.lang{font-size:12px;letter-spacing:.06em;color:var(--muted);margin:56px 0 0;padding-top:20px;border-top:1px solid var(--rule)}
+</style>
+</head>
+<body>
+<div class="page">
+<header class="top">
+  <a class="id" href="/"><img src="logo.svg" alt="">just-Code</a>
+  <nav><a href="/privacy">privacy</a><a href="/termini">termini</a><a href="https://github.com/matthias-peterlini/just-Code">github</a></nav>
+</header>
+<main class="legal body" style="max-width:72ch">
+
+<h1>Termini di servizio</h1>
+<p class="date">Ultimo aggiornamento: 13 novembre 2026</p>
+
+<p>Usando just-Code accetti questi termini.</p>
+
+<h3>Il software</h3>
+<p>just-Code è un programma gratuito che gira sul tuo computer. Viene fornito <b>"così com'è"</b>, senza garanzie di alcun tipo. Nei limiti consentiti dalla legge, gli autori non sono responsabili di danni derivanti dal suo uso.</p>
+
+<h3>Azioni degli agenti</h3>
+<p>Gli agenti possono leggere e modificare file ed eseguire comandi nella cartella in cui avvii just-Code. Con le impostazioni predefinite chiedono conferma prima di scrivere o eseguire; in modalità turbo agiscono senza chiedere. Sei responsabile di controllare le modifiche e di tenere un backup o un sistema di versione (per esempio git) del tuo progetto.</p>
+
+<h3>Servizi di terzi</h3>
+<p>just-Code si collega a servizi di terzi scelti da te (Google Gemini, Groq, OpenRouter, OpenAI e altri). Il loro uso è regolato dalle rispettive condizioni, compresi limiti, costi e trattamento dei dati. Con l'accesso Google valgono anche i <a href="https://policies.google.com/terms">Termini di servizio di Google</a> e le <a href="https://ai.google.dev/gemini-api/terms">condizioni dell'API Gemini</a>.</p>
+
+<h3>Uso consentito</h3>
+<p>Non usare just-Code per violare leggi, diritti altrui o le condizioni dei fornitori di modelli.</p>
+
+<h3>Modifiche</h3>
+<p>Questi termini possono essere aggiornati; la data in alto indica l'ultima versione.</p>
+
+<h3>Contatti</h3>
+<p><a href="https://github.com/matthias-peterlini/just-Code/issues">github.com/matthias-peterlini/just-Code/issues</a></p>
+
+<p class="lang">ENGLISH</p>
+<h1>Terms of service</h1>
+<p class="date">Last updated: 13 November 2026</p>
+<p>just-Code is free software that runs on your computer and is provided <b>"as is"</b>, without warranty of any kind. To the extent permitted by law, the authors are not liable for damages arising from its use.</p>
+<p>Agents can read and modify files and run commands in the folder where you start just-Code. By default they ask before writing or running anything; in turbo mode they do not. You are responsible for reviewing changes and keeping backups or version control.</p>
+<p>just-Code connects to third-party services you choose (Google Gemini, Groq, OpenRouter, OpenAI and others); their terms apply, including the <a href="https://policies.google.com/terms">Google Terms of Service</a> and the <a href="https://ai.google.dev/gemini-api/terms">Gemini API terms</a> when you sign in with Google. Do not use just-Code to break the law or those terms.</p>
+<p>Contact: <a href="https://github.com/matthias-peterlini/just-Code/issues">github.com/matthias-peterlini/just-Code/issues</a></p>
+</main>
+<footer class="foot">
+  <span>just-Code</span>
+  <span><a href="/">code.justapps.it</a> · <a href="/privacy">privacy</a> · <a href="/termini">termini</a></span>
+  <span>JUST-CODE(1)</span>
+</footer>
+</div>
+</body>
+</html>
