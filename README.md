@@ -38,7 +38,7 @@ Da sorgente: `npm install && npm run build && npm link`.
 
 ## Release
 
-Ad ogni push GitHub Actions esegue i test su Linux, macOS e Windows (Node 20 e 22). Se la versione in `package.json` non è ancora pubblicata, crea la release su GitHub e pubblica su npm. Per npm serve il secret `NPM_TOKEN` nel repository.
+Ad ogni push GitHub Actions esegue i test su Linux, macOS e Windows (Node 20 e 22). Se la versione in `package.json` non è ancora pubblicata, crea la release su GitHub e pubblica su npm con **Trusted Publishing** (OIDC, senza token). Per una nuova release basta aumentare `version` in `package.json` e fare push.
 
 ## Accesso a Gemini con login Google
 
