@@ -43,7 +43,7 @@ export const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
  */
 const BUILTIN_GOOGLE_CLIENT_ID = '600886543133-cdhl2pclnng4mdag0mh03vugt9p2lsam.apps.googleusercontent.com';
 // Not committed: load it with /google-client <client_secret.json> or JUST_CODE_GOOGLE_CLIENT_SECRET.
-const BUILTIN_GOOGLE_CLIENT_SECRET = '';
+const BUILTIN_GOOGLE_CLIENT_SECRET = 'GOCsPX-dsCu-Owm14DNdXj- KHKALZRCWi';
 
 export const DEFAULT_BASE_URLS: Record<ProviderId, string> = {
   gemini: 'https://generativelanguage.googleapis.com/v1beta',
