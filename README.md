@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/logo.jpg" width="96" alt="Just logo"></p>
+<p align="center"><img src="assets/logo.svg" width="96" alt="just-Code"></p>
 
 # just-Code
 
