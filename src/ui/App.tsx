@@ -17,6 +17,7 @@ import {
   type Config,
   type ProviderId,
 } from '../config.js';
+import { NEED_PROJECT, NOT_CONNECTED } from '../providers/gemini.js';
 import { googleAccount, googleLogin, googleLogout, isGoogleLoggedIn } from '../auth/google.js';
 import type { PermissionRequest } from '../tools/index.js';
 import { AgentPanel, type AgentView } from './AgentPanel.js';
@@ -40,7 +41,8 @@ type NewItem = Item extends infer T ? (T extends Item ? Omit<T, 'id'> : never) :
 
 const COMMANDS: [string, string][] = [
   ['/help', 'show commands'],
-  ['/login', 'log in with your Google account (Gemini)'],
+  ['/login', '[project-id] — log in with Google; usage is billed to your own Google Cloud project'],
+  ['/project', '<project-id> — Google Cloud project used with the Google login'],
   ['/logout', 'log out of Google'],
   ['/google-client', '<client_secret.json> | <id> <secret> — override the built-in OAuth client'],
   ['/key', '<provider> <api_key> — save an API key (groq, openrouter, openai, gemini, custom)'],
@@ -155,7 +157,7 @@ export function App({ initialConfig, cwd, initialPrompt }: { initialConfig: Conf
       setSplash(false);
       push({ kind: 'header' });
       if (initialConfig.orchestrator.provider === 'gemini' && !isGoogleLoggedIn() && !providerSettings(initialConfig, 'gemini').apiKey)
-        push({ kind: 'info', text: 'Not connected to Gemini yet → type /login to sign in with Google.', color: C.yellow });
+        push({ kind: 'info', text: NOT_CONNECTED, color: C.yellow });
       if (initialConfig.turbo) setTurboAnim(true);
       if (initialPrompt) void submit(initialPrompt);
     }, 1700);
@@ -232,20 +234,33 @@ export function App({ initialConfig, cwd, initialPrompt }: { initialConfig: Conf
         setTurbo(args[0] ? args[0] === 'on' : !cfg.turbo);
         break;
       case '/login': {
-        const g = googleOAuth(cfg);
+        let loginCfg = cfg;
+        if (args[0]) {
+          loginCfg = { ...cfg, google: { ...cfg.google, quotaProject: args[0] } };
+          setConfig(loginCfg);
+        }
+        const g = googleOAuth(loginCfg);
         loginAbort.current = new AbortController();
         setBusy(true);
         setOrchStatus('waiting for Google login in the browser…');
         try {
           const email = await googleLogin(g, (url) => push({ kind: 'info', text: `🌐 Opening the browser to sign in with Google.\nIf it does not open, visit:\n${url}`, color: C.blue }), loginAbort.current.signal);
           setAccount(email);
-          push({ kind: 'info', text: `✔ Logged in with Google${email ? ` as ${email}` : ''}. Gemini is ready.`, color: C.green });
+          push({ kind: 'info', text: `✔ Logged in with Google${email ? ` as ${email}` : ''}.`, color: C.green });
+          if (g.quotaProject) push({ kind: 'info', text: `Gemini is ready — usage billed to your project ${g.quotaProject}.`, color: C.green });
+          else push({ kind: 'info', text: NEED_PROJECT, color: C.yellow });
         } catch (e) {
           push({ kind: 'error', text: (e as Error).message });
         } finally {
           setBusy(false);
           loginAbort.current = null;
         }
+        break;
+      }
+      case '/project': {
+        if (!args[0]) return push({ kind: 'error', text: 'Usage: /project <google-cloud-project-id>' });
+        setConfig({ ...cfg, google: { ...cfg.google, quotaProject: args[0] } });
+        push({ kind: 'info', text: `✔ Google login usage now billed to project ${args[0]}.`, color: C.green });
         break;
       }
       case '/logout':
@@ -308,7 +323,7 @@ export function App({ initialConfig, cwd, initialPrompt }: { initialConfig: Conf
           kind: 'info',
           text:
             `orchestrator  ${fmtRef(cfg.orchestrator)}\nsub-agents    ${fmtRef(cfg.subagent)}  (max ${cfg.maxParallel} parallel)\n` +
-            `google login  ${isGoogleLoggedIn() ? `✔ ${googleAccount() ?? ''}` : '✘ (/login)'}\napi keys      ${keys}\n` +
+            `google login  ${isGoogleLoggedIn() ? `✔ ${googleAccount() ?? ''}` : '✘ (/login)'}  project ${googleOAuth(cfg).quotaProject ?? '✘ (/project)'}\napi keys      ${keys}\n` +
             `turbo         ${cfg.turbo ? 'ON ⚡' : 'off'}\nworkspace     ${cwd}\nconfig        ${CONFIG_FILE}`,
         });
         break;

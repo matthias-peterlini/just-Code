@@ -40,17 +40,13 @@ Da sorgente: `npm install && npm run build && npm link`.
 
 Ad ogni push GitHub Actions esegue i test su Linux, macOS e Windows (Node 20 e 22). Se la versione in `package.json` non è ancora pubblicata, crea la release su GitHub e pubblica su npm con **Trusted Publishing** (OIDC, senza token). Per una nuova release basta aumentare `version` in `package.json` e fare push.
 
-## Accesso a Gemini con login Google
+## Accesso a Gemini
 
-Dentro just-Code scrivi **`/login`**: si apre il browser, accedi con il tuo account Google e il token viene salvato in `~/.just-code/google-auth.json` (si rinnova da solo).
+**Il modo più semplice (gratis):** crea una chiave su [Google AI Studio](https://aistudio.google.com/apikey) — senza attivare la fatturazione hai il livello gratuito — e in just-Code scrivi `/key gemini <KEY>` (oppure `export GEMINI_API_KEY=...`). Se c'è una chiave, ha la precedenza sul login.
 
-just-Code include già l'ID del client OAuth (progetto Google Cloud "Just General"). Il client secret non è nel repository: caricalo una volta con `/google-client ~/Downloads/client_secret_xxx.json` (il file JSON scaricato dalla console), oppure inseriscilo in `BUILTIN_GOOGLE_CLIENT_SECRET` in `src/config.ts` prima della build. Poi `/login`.
+**Con il login Google:** `/login <id-progetto>` apre il browser, accedi con il tuo account e il token viene salvato in `~/.just-code/google-auth.json` (si rinnova da solo). L'uso viene addebitato al **tuo** progetto Google Cloud (con la *Generative Language API* abilitata), mai a quello di just-Code. Puoi cambiarlo con `/project <id-progetto>` o `GOOGLE_CLOUD_QUOTA_PROJECT`.
 
-> L'app OAuth è in modalità **Test**: possono accedere solo gli account aggiunti in *Google Auth Platform → Pubblico → Utenti di test*. Al login Google può mostrare "app non verificata": clicca *Avanzate → Continua*. Per aprirla a tutti, pubblica l'app e completa la verifica di Google.
-
-Per usare un tuo client OAuth (tipo **Desktop app**, con la *Gemini API* abilitata nel progetto): `/google-client ~/Downloads/client_secret_xxx.json` oppure `/google-client <CLIENT_ID> <CLIENT_SECRET>`.
-
-Alternativa senza login: `export GEMINI_API_KEY=...` (chiave da Google AI Studio) oppure `/key gemini <KEY>`.
+Per usare un tuo client OAuth (tipo **Desktop app**): `/google-client ~/Downloads/client_secret_xxx.json` oppure `/google-client <CLIENT_ID> <CLIENT_SECRET>`.
 
 ## Altri provider
 
@@ -83,7 +79,8 @@ Gli agenti possono lavorare solo dentro la cartella in cui hai avviato just-Code
 | Comando | |
 |---|---|
 | `/help` | elenco comandi (Tab completa) |
-| `/login`, `/logout` | account Google per Gemini |
+| `/login [progetto]`, `/logout` | account Google per Gemini |
+| `/project <id>` | progetto Google Cloud usato con il login |
 | `/google-client <id> <secret> [project]` | client OAuth |
 | `/key <provider> <key>` | salva una API key |
 | `/baseurl <provider> <url>` | endpoint compatibile OpenAI |

@@ -21,6 +21,13 @@ function toGeminiSchema(s: JSONSchema): Record<string, unknown> {
   return out;
 }
 
+export const NOT_CONNECTED =
+  'Gemini is not connected. Easiest (free): get a key at https://aistudio.google.com/apikey and run /key gemini <KEY>. ' +
+  'Or sign in with /login <your-google-cloud-project-id>.';
+export const NEED_PROJECT =
+  'Logged in with Google, but no Google Cloud project is set for usage. Run /project <your-project-id> ' +
+  '(a project of yours with the "Generative Language API" enabled) — or use a free AI Studio key: /key gemini <KEY>.';
+
 export class GeminiProvider implements Provider {
   id = 'gemini';
   constructor(
@@ -30,15 +37,16 @@ export class GeminiProvider implements Provider {
   ) {}
 
   private async authHeaders(): Promise<Record<string, string>> {
-    // Prefer the Google login; fall back to an API key.
+    // An API key (free tier from Google AI Studio) wins: it is billed to the user's own key.
+    if (this.apiKey) return { 'x-goog-api-key': this.apiKey };
     const token = await getGoogleAccessToken(this.oauth).catch(() => null);
     if (token) {
-      const h: Record<string, string> = { Authorization: `Bearer ${token}` };
-      if (this.oauth.quotaProject) h['x-goog-user-project'] = this.oauth.quotaProject;
-      return h;
+      // With a Google login, usage must be billed to the user's own Google Cloud project,
+      // never to the project that owns the OAuth client.
+      if (!this.oauth.quotaProject) throw new ProviderError(NEED_PROJECT);
+      return { Authorization: `Bearer ${token}`, 'x-goog-user-project': this.oauth.quotaProject };
     }
-    if (this.apiKey) return { 'x-goog-api-key': this.apiKey };
-    throw new ProviderError('Gemini: not logged in. Run /login (Google account) or set GEMINI_API_KEY.');
+    throw new ProviderError(NOT_CONNECTED);
   }
 
   async chat(model: string, messages: Message[], tools: ToolDef[], signal?: AbortSignal): Promise<ChatResult> {

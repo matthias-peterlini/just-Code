@@ -1,6 +1,6 @@
 {
   "name": "@justapps/just-code",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "just-Code \u2014 terminal AI IDE: an orchestrator model that delegates to parallel sub-agents (Gemini, Groq, OpenRouter, any OpenAI-compatible API).",
   "type": "module",
   "bin": {
