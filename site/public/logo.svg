@@ -1,10 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" shape-rendering="crispEdges">
-  <rect width="120" height="120" rx="26" fill="#111111"/>
-  <!-- pixel J -->
-  <rect x="20" y="26" width="46" height="10" fill="#F5F5F5"/>
-  <rect x="38" y="36" width="10" height="50" fill="#F5F5F5"/>
-  <rect x="20" y="72" width="9" height="9" fill="#F5F5F5"/>
-  <rect x="29" y="81" width="19" height="10" fill="#F5F5F5"/>
-  <!-- orange cursor -->
-  <rect x="76" y="26" width="22" height="66" fill="#F2541B"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 13" width="260" height="260" shape-rendering="crispEdges"><title>just-Code</title><rect width="13" height="13" fill="#141414"/><g fill="#f2efe6"><rect x="2" y="3" width="5" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="5" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="5" y="8" width="1" height="1"/><rect x="3" y="9" width="2" height="1"/></g><rect x="8" y="3" width="3" height="7" fill="#ff5a1f"/></svg>

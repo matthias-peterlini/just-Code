@@ -1,11 +1,11 @@
 /** Brand palette taken from the Just logo. */
 export const C = {
-  black: '#111111',
-  white: '#F5F5F5',
-  orange: '#F2541B',
-  orangeSoft: '#FF8A4C',
-  gray: '#8A8A8A',
-  dim: '#5A5A5A',
+  black: '#141414',
+  white: '#F2EFE6',
+  orange: '#FF5A1F',
+  orangeSoft: '#FF8F5E',
+  gray: '#A29D91',
+  dim: '#6B675D',
   green: '#4ADE80',
   red: '#F87171',
   yellow: '#FACC15',

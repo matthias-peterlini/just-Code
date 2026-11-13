@@ -10,18 +10,19 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#F2F0EB; --ink:#141414; --muted:#6E6A63; --rule:#D9D5CC; --soft:#E8E5DE;
-  --orange:#F2541B; --term:#111113; --termline:#26262a;
-  --text:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
-  --tt:'JetBrains Mono','DejaVu Sans Mono',Menlo,Consolas,monospace;
+  /* palette and type from justos.dev */
+  --paper:#f2efe6; --ink:#141414; --muted:#6b675d; --rule:#cfc9b8; --soft:#e9e5d8;
+  --orange:#ff5a1f; --term:#141414; --termline:#2b2a26;
+  --text:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --tt:var(--text);
 }
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){--paper:#121212;--ink:#ECE9E3;--muted:#8F8B84;--rule:#2A2A2A;--soft:#1B1B1B;--term:#0A0A0B;--termline:#2a2a2e}
+  :root:not([data-theme="light"]){--paper:#141414;--ink:#f2efe6;--muted:#a29d91;--rule:#3a3832;--soft:#1e1d1a;--term:#0d0d0c;--termline:#3a3832}
 }
-:root[data-theme="dark"]{--paper:#121212;--ink:#ECE9E3;--muted:#8F8B84;--rule:#2A2A2A;--soft:#1B1B1B;--term:#0A0A0B;--termline:#2a2a2e}
+:root[data-theme="dark"]{--paper:#141414;--ink:#f2efe6;--muted:#a29d91;--rule:#3a3832;--soft:#1e1d1a;--term:#0d0d0c;--termline:#3a3832}
 
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -34,7 +35,7 @@ a:hover{color:var(--orange)}
 
 /* top line */
 .top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 0;border-bottom:1px solid var(--rule);font-size:13px}
-.top .id{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:600}
+.top .id{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:700}
 .top .id img{width:22px;height:22px;display:block}
 .top nav{display:flex;gap:20px;color:var(--muted)}
 .top nav a{text-decoration:none}
@@ -44,7 +45,7 @@ a:hover{color:var(--orange)}
 .hero{padding:64px 0 28px}
 .wordmark{display:block;width:min(600px,100%);height:auto}
 .wordmark .ink{fill:var(--ink)}
-.wordmark .cur{fill:var(--orange);animation:blink 1.06s steps(1) infinite}
+.wordmark .cur{fill:var(--orange);animation:blink 1.1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 .lede{font-size:clamp(17px,2.2vw,21px);line-height:1.55;max-width:42ch;margin:32px 0 0}
 .lede em{font-style:normal;color:var(--orange)}
@@ -57,7 +58,7 @@ a:hover{color:var(--orange)}
 .alt{margin-top:10px;font-size:13px;color:var(--muted)}
 
 /* terminal */
-.term{margin-top:44px;background:var(--term);color:#e8e6e1;border:1px solid var(--termline)}
+.term{margin-top:44px;background:var(--term);color:#f2efe6;border:1px solid var(--termline)}
 .term .tb{display:flex;justify-content:space-between;gap:12px;padding:8px 14px;border-bottom:1px solid var(--termline);font:12px var(--text);color:#77746e}
 .term pre{margin:0;padding:16px 14px 18px;font-family:var(--tt);font-size:clamp(6.4px,calc((100vw - 64px) / 47.5),13.4px);line-height:1.38;white-space:pre;overflow:hidden}
 .term pre.short{min-height:0}
@@ -68,7 +69,7 @@ a:hover{color:var(--orange)}
 .sec{display:grid;grid-template-columns:180px 1fr;gap:24px;padding:44px 0;border-top:1px solid var(--rule)}
 .sec:first-of-type{margin-top:56px}
 @media (max-width:760px){.sec{grid-template-columns:1fr;gap:10px;padding:34px 0}}
-.sec>h2{margin:0;font-size:13px;font-weight:600;letter-spacing:.08em;line-height:1.9}
+.sec>h2{margin:0;font-size:13px;font-weight:700;letter-spacing:.08em;line-height:1.9}
 .sec>h2 small{display:block;font-weight:400;letter-spacing:0;color:var(--muted)}
 .body{min-width:0;max-width:68ch}
 .body p{margin:0 0 14px}
@@ -76,7 +77,7 @@ a:hover{color:var(--orange)}
 .body .muted{color:var(--muted)}
 code.i{background:var(--soft);padding:1px 5px;font-size:.92em}
 .syn{font-size:15px;line-height:1.9}
-.syn b{font-weight:600}
+.syn b{font-weight:700}
 .syn i{font-style:italic;color:var(--muted)}
 
 .diagram{font-family:var(--tt);font-size:clamp(9px,2.2vw,13.5px);line-height:1.45;white-space:pre;margin:4px 0 24px;overflow:hidden}
@@ -88,7 +89,7 @@ ol.n li{counter-increment:n;display:grid;grid-template-columns:3ch 1fr;gap:8px;m
 ol.n li::before{content:counter(n)".";color:var(--orange)}
 
 table{width:100%;border-collapse:collapse;font-size:14px}
-th{text-align:left;font-weight:600;font-size:12px;letter-spacing:.06em;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--ink)}
+th{text-align:left;font-weight:700;font-size:12px;letter-spacing:.06em;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--ink)}
 td{padding:9px 12px 9px 0;border-bottom:1px solid var(--rule);vertical-align:top}
 td:first-child{white-space:nowrap;font-weight:500}
 .tw{overflow-x:auto}
@@ -118,7 +119,7 @@ pre.block .c{color:var(--muted)}
 </header>
 
 <section class="hero">
-  <!--wordmark--><svg class="wordmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 55 9" shape-rendering="crispEdges" role="img" aria-label="just-Code"><g class="ink"><rect x="4" y="0" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="4" y="6" width="1" height="1"/><rect x="0" y="7" width="1" height="1"/><rect x="4" y="7" width="1" height="1"/><rect x="1" y="8" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="10" y="2" width="1" height="1"/><rect x="6" y="3" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="10" y="4" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="10" y="5" width="1" height="1"/><rect x="7" y="6" width="1" height="1"/><rect x="8" y="6" width="1" height="1"/><rect x="10" y="6" width="1" height="1"/><rect x="13" y="2" width="1" height="1"/><rect x="14" y="2" width="1" height="1"/><rect x="15" y="2" width="1" height="1"/><rect x="16" y="2" width="1" height="1"/><rect x="12" y="3" width="1" height="1"/><rect x="13" y="4" width="1" height="1"/><rect x="14" y="4" width="1" height="1"/><rect x="15" y="4" width="1" height="1"/><rect x="16" y="5" width="1" height="1"/><rect x="12" y="6" width="1" height="1"/><rect x="13" y="6" width="1" height="1"/><rect x="14" y="6" width="1" height="1"/><rect x="15" y="6" width="1" height="1"/><rect x="19" y="0" width="1" height="1"/><rect x="19" y="1" width="1" height="1"/><rect x="18" y="2" width="1" height="1"/><rect x="19" y="2" width="1" height="1"/><rect x="20" y="2" width="1" height="1"/><rect x="21" y="2" width="1" height="1"/><rect x="19" y="3" width="1" height="1"/><rect x="19" y="4" width="1" height="1"/><rect x="19" y="5" width="1" height="1"/><rect x="22" y="5" width="1" height="1"/><rect x="20" y="6" width="1" height="1"/><rect x="21" y="6" width="1" height="1"/><rect x="24" y="4" width="1" height="1"/><rect x="25" y="4" width="1" height="1"/><rect x="26" y="4" width="1" height="1"/><rect x="29" y="0" width="1" height="1"/><rect x="30" y="0" width="1" height="1"/><rect x="31" y="0" width="1" height="1"/><rect x="28" y="1" width="1" height="1"/><rect x="32" y="1" width="1" height="1"/><rect x="28" y="2" width="1" height="1"/><rect x="28" y="3" width="1" height="1"/><rect x="28" y="4" width="1" height="1"/><rect x="28" y="5" width="1" height="1"/><rect x="32" y="5" width="1" height="1"/><rect x="29" y="6" width="1" height="1"/><rect x="30" y="6" width="1" height="1"/><rect x="31" y="6" width="1" height="1"/><rect x="35" y="2" width="1" height="1"/><rect x="36" y="2" width="1" height="1"/><rect x="37" y="2" width="1" height="1"/><rect x="34" y="3" width="1" height="1"/><rect x="38" y="3" width="1" height="1"/><rect x="34" y="4" width="1" height="1"/><rect x="38" y="4" width="1" height="1"/><rect x="34" y="5" width="1" height="1"/><rect x="38" y="5" width="1" height="1"/><rect x="35" y="6" width="1" height="1"/><rect x="36" y="6" width="1" height="1"/><rect x="37" y="6" width="1" height="1"/><rect x="44" y="0" width="1" height="1"/><rect x="44" y="1" width="1" height="1"/><rect x="41" y="2" width="1" height="1"/><rect x="42" y="2" width="1" height="1"/><rect x="43" y="2" width="1" height="1"/><rect x="44" y="2" width="1" height="1"/><rect x="40" y="3" width="1" height="1"/><rect x="44" y="3" width="1" height="1"/><rect x="40" y="4" width="1" height="1"/><rect x="44" y="4" width="1" height="1"/><rect x="40" y="5" width="1" height="1"/><rect x="44" y="5" width="1" height="1"/><rect x="41" y="6" width="1" height="1"/><rect x="42" y="6" width="1" height="1"/><rect x="43" y="6" width="1" height="1"/><rect x="44" y="6" width="1" height="1"/><rect x="47" y="2" width="1" height="1"/><rect x="48" y="2" width="1" height="1"/><rect x="49" y="2" width="1" height="1"/><rect x="46" y="3" width="1" height="1"/><rect x="50" y="3" width="1" height="1"/><rect x="46" y="4" width="1" height="1"/><rect x="47" y="4" width="1" height="1"/><rect x="48" y="4" width="1" height="1"/><rect x="49" y="4" width="1" height="1"/><rect x="50" y="4" width="1" height="1"/><rect x="46" y="5" width="1" height="1"/><rect x="47" y="6" width="1" height="1"/><rect x="48" y="6" width="1" height="1"/><rect x="49" y="6" width="1" height="1"/></g><rect class="cur" x="52" y="0" width="3" height="7"/></svg><!--/wordmark-->
+  <!--wordmark--><svg class="wordmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 57 7" shape-rendering="crispEdges" role="img" aria-label="just-Code"><g class="ink"><rect x="0" y="0" width="5" height="1"/><rect x="6" y="0" width="1" height="1"/><rect x="10" y="0" width="1" height="1"/><rect x="13" y="0" width="4" height="1"/><rect x="18" y="0" width="5" height="1"/><rect x="29" y="0" width="4" height="1"/><rect x="35" y="0" width="3" height="1"/><rect x="40" y="0" width="4" height="1"/><rect x="46" y="0" width="5" height="1"/><rect x="3" y="1" width="1" height="1"/><rect x="6" y="1" width="1" height="1"/><rect x="10" y="1" width="1" height="1"/><rect x="12" y="1" width="1" height="1"/><rect x="20" y="1" width="1" height="1"/><rect x="28" y="1" width="1" height="1"/><rect x="34" y="1" width="1" height="1"/><rect x="38" y="1" width="1" height="1"/><rect x="40" y="1" width="1" height="1"/><rect x="44" y="1" width="1" height="1"/><rect x="46" y="1" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="10" y="2" width="1" height="1"/><rect x="12" y="2" width="1" height="1"/><rect x="20" y="2" width="1" height="1"/><rect x="28" y="2" width="1" height="1"/><rect x="34" y="2" width="1" height="1"/><rect x="38" y="2" width="1" height="1"/><rect x="40" y="2" width="1" height="1"/><rect x="44" y="2" width="1" height="1"/><rect x="46" y="2" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="6" y="3" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="13" y="3" width="3" height="1"/><rect x="20" y="3" width="1" height="1"/><rect x="24" y="3" width="3" height="1"/><rect x="28" y="3" width="1" height="1"/><rect x="34" y="3" width="1" height="1"/><rect x="38" y="3" width="1" height="1"/><rect x="40" y="3" width="1" height="1"/><rect x="44" y="3" width="1" height="1"/><rect x="46" y="3" width="4" height="1"/><rect x="3" y="4" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="10" y="4" width="1" height="1"/><rect x="16" y="4" width="1" height="1"/><rect x="20" y="4" width="1" height="1"/><rect x="28" y="4" width="1" height="1"/><rect x="34" y="4" width="1" height="1"/><rect x="38" y="4" width="1" height="1"/><rect x="40" y="4" width="1" height="1"/><rect x="44" y="4" width="1" height="1"/><rect x="46" y="4" width="1" height="1"/><rect x="0" y="5" width="1" height="1"/><rect x="3" y="5" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="10" y="5" width="1" height="1"/><rect x="16" y="5" width="1" height="1"/><rect x="20" y="5" width="1" height="1"/><rect x="28" y="5" width="1" height="1"/><rect x="34" y="5" width="1" height="1"/><rect x="38" y="5" width="1" height="1"/><rect x="40" y="5" width="1" height="1"/><rect x="44" y="5" width="1" height="1"/><rect x="46" y="5" width="1" height="1"/><rect x="1" y="6" width="2" height="1"/><rect x="7" y="6" width="3" height="1"/><rect x="12" y="6" width="4" height="1"/><rect x="20" y="6" width="1" height="1"/><rect x="29" y="6" width="4" height="1"/><rect x="35" y="6" width="3" height="1"/><rect x="40" y="6" width="4" height="1"/><rect x="46" y="6" width="5" height="1"/></g><g class="cur"><rect x="53" y="0" width="4" height="1"/><rect x="53" y="1" width="4" height="1"/><rect x="53" y="2" width="4" height="1"/><rect x="53" y="3" width="4" height="1"/><rect x="53" y="4" width="4" height="1"/><rect x="53" y="5" width="4" height="1"/><rect x="53" y="6" width="4" height="1"/></g></svg><!--/wordmark-->
   <p class="lede">IDE di codice AI per il terminale. Un modello <em>orchestratore</em> divide il lavoro in compiti piccoli; i <em>sub-agenti</em> li eseguono in parallelo sul tuo progetto.</p>
   <div class="cmd"><code id="npmcmd">npm install -g @justapps/just-code</code><button data-copy="npmcmd">copia</button></div>
   <p class="alt">macOS, Linux e Windows · Node.js 20 o successivo · altri metodi in <a href="#installazione">installazione</a></p>
@@ -269,7 +270,7 @@ just-code              <span class="c"># oppure: jc</span>
 </section>
 
 <footer class="foot">
-  <span>just-Code 0.2.0</span>
+  <span>just-Code 0.2.1</span>
   <span><a href="https://justapps.it">justapps.it</a> · <a href="https://github.com/matthias-peterlini/just-code">github</a></span>
   <span>JUST-CODE(1)</span>
 </footer>

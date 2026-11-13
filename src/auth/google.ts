@@ -90,6 +90,12 @@ export async function googleLogin(
         '/google-client <CLIENT_ID> <CLIENT_SECRET> (or set JUST_CODE_GOOGLE_CLIENT_ID / _SECRET).',
     );
   }
+  if (!settings.clientSecret) {
+    throw new Error(
+      'Missing Google OAuth client secret. Load the OAuth client JSON downloaded from Google Cloud Console ' +
+        'with /google-client <client_secret.json>, or set JUST_CODE_GOOGLE_CLIENT_SECRET.',
+    );
+  }
   const verifier = b64url(crypto.randomBytes(32));
   const challenge = b64url(crypto.createHash('sha256').update(verifier).digest());
   const state = b64url(crypto.randomBytes(16));

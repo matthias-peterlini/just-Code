@@ -42,7 +42,7 @@ export const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
  * so end users only have to click "Login with Google".
  */
 const BUILTIN_GOOGLE_CLIENT_ID = '600886543133-cdhl2pclnng4mdag0mh03vugt9p2lsam.apps.googleusercontent.com';
-// Fill in locally (or use /google-client <client_secret.json>); not committed to the repository.
+// Not committed: load it with /google-client <client_secret.json> or JUST_CODE_GOOGLE_CLIENT_SECRET.
 const BUILTIN_GOOGLE_CLIENT_SECRET = '';
 
 export const DEFAULT_BASE_URLS: Record<ProviderId, string> = {

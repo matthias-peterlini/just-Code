@@ -57,32 +57,28 @@ data = {
 }
 (PUB / "frames.js").write_text("window.JC_FRAMES=" + json.dumps(data, ensure_ascii=False) + ";\n")
 
-# ---- pixel wordmark "just-Code" in the style of the logo's J ----
-G = {
- "j": ["....#", ".....", "...##", "....#", "....#", "....#", "....#", "#...#", ".###."],
- "u": [".....", ".....", "#...#", "#...#", "#...#", "#..##", ".##.#", ".....", "....."],
- "s": [".....", ".....", ".####", "#....", ".###.", "....#", "####.", ".....", "....."],
- "t": [".#...", ".#...", "####.", ".#...", ".#...", ".#..#", "..##.", ".....", "....."],
- "-": [".....", ".....", ".....", ".....", "###..", ".....", ".....", ".....", "....."],
- "C": [".###.", "#...#", "#....", "#....", "#....", "#...#", ".###.", ".....", "....."],
- "o": [".....", ".....", ".###.", "#...#", "#...#", "#...#", ".###.", ".....", "....."],
- "d": ["....#", "....#", ".####", "#...#", "#...#", "#...#", ".####", ".....", "....."],
- "e": [".....", ".....", ".###.", "#...#", "#####", "#....", ".###.", ".....", "....."],
-}
-WIDTH = {"-": 3}
-rects, x = [], 0
-for ch in "just-Code":
-    g = G[ch]
-    for y, row in enumerate(g):
-        for dx, px in enumerate(row):
-            if px == "#":
-                rects.append(f'<rect x="{x + dx}" y="{y}" width="1" height="1"/>')
-    x += WIDTH.get(ch, 5) + 1
-cursor = f'<rect class="cur" x="{x}" y="0" width="3" height="7"/>'
-w = x + 3
-svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} 9" shape-rendering="crispEdges" role="img" aria-label="just-Code">'
-       f'<g class="ink">{"".join(rects)}</g>{cursor}</svg>')
-svg = svg.replace("<svg ", '<svg class="wordmark" ', 1)
+# ---- pixel wordmark from the shared brand glyphs (src/ui/brand.ts, via dist/) ----
+import subprocess
+ROOT = HERE.parent.parent
+rows = json.loads(subprocess.check_output(
+    ["node", "--input-type=module", "-e",
+     "const b = await import(process.argv[1]); console.log(JSON.stringify(b.wordmarkRows()))",
+     (ROOT / "dist/ui/brand.js").as_uri()]))
+ink, cur = [], []
+for y, row in enumerate(rows):
+    x = 0
+    while x < len(row):
+        ch = row[x]
+        if ch in "#O":
+            x0 = x
+            while x < len(row) and row[x] == ch:
+                x += 1
+            (ink if ch == "#" else cur).append(f'<rect x="{x0}" y="{y}" width="{x - x0}" height="1"/>')
+        else:
+            x += 1
+w = len(rows[0])
+svg = (f'<svg class="wordmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} 7" shape-rendering="crispEdges" role="img" aria-label="just-Code">'
+       f'<g class="ink">{"".join(ink)}</g><g class="cur">{"".join(cur)}</g></svg>')
 idx = PUB / "index.html"
 page = idx.read_text()
 page = re.sub(r"<!--wordmark-->.*?<!--/wordmark-->", lambda _: f"<!--wordmark-->{svg}<!--/wordmark-->", page, flags=re.S)
