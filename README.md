@@ -2,7 +2,7 @@
 
 # just-Code
 
-IDE di codice AI **nel terminale**: un modello *orchestratore* (es. Gemini) capisce la richiesta, la divide in piccoli compiti e lancia **sub-agenti in parallelo** che leggono, scrivono e modificano i file ed eseguono comandi. L'orchestratore raccoglie i report, verifica e risponde.
+IDE di codice AI **nel terminale** e con **interfaccia grafica**: un modello *orchestratore* (es. Gemini) capisce la richiesta, la divide in piccoli compiti e lancia **sub-agenti in parallelo** che leggono, scrivono e modificano i file ed eseguono comandi. L'orchestratore raccoglie i report, verifica e risponde.
 
 Provider supportati: **Google Gemini** (login con account Google oppure API key), **Groq**, **OpenRouter**, **OpenAI** e **qualsiasi API compatibile OpenAI** (Ollama, LM Studio, vLLM…).
 
@@ -35,6 +35,32 @@ In alternativa:
 I comandi degli agenti girano con la tua shell su macOS e Linux, con `cmd.exe` su Windows. In Git Bash su Windows avvia con `winpty just-code`.
 
 Da sorgente: `npm install && npm run build && npm link`.
+
+## Primo avvio: configurazione guidata
+
+Al primo avvio just-Code ti guida in 5 passi:
+1. scegli il provider (Gemini con chiave gratuita, Groq, OpenRouter, OpenAI, login Google, Ollama/locale);
+2. inserisci la chiave (si apre la pagina dove crearla) o fai il login;
+3. just-Code prova la connessione;
+4. scegli i modelli per orchestratore e sub-agenti;
+5. scegli se chiedere conferma o andare in TURBO.
+
+Puoi rifarla quando vuoi con `/setup` oppure `just-code setup`.
+
+## Interfaccia grafica
+
+```bash
+just-code gui
+```
+
+Apre just-Code in una finestra (Chrome/Edge in modalità app, altrimenti il browser) con chat, pannello dei sub-agenti in tempo reale, finestre di conferma con il diff, interruttore TURBO, configurazione guidata e autocompletamento. Gira solo in locale (`127.0.0.1`, con un token casuale) e usa lo stesso motore, gli stessi comandi e la stessa configurazione del terminale. Opzioni: `--port <n>`, `--no-open`.
+
+## Autocompletamento e suggerimenti
+
+- `/` mostra i comandi; **Tab** completa anche gli argomenti (provider, modelli `provider:modello`, `on/off`, file `.json`…). Il testo suggerito appare in grigio dopo il cursore.
+- `@` cerca i file del progetto (ricerca fuzzy): `sistema @src/auth/log` → `@src/auth/login.ts`. I file citati vengono segnalati all'orchestratore.
+- **↑/↓** scorrono i suggerimenti, oppure la cronologia dei prompt (salvata in `~/.just-code/history.json`).
+- A conversazione vuota just-Code propone dei prompt adatti al progetto (test, build, revisione delle modifiche…).
 
 ## Release
 
@@ -79,6 +105,7 @@ Gli agenti possono lavorare solo dentro la cartella in cui hai avviato just-Code
 | Comando | |
 |---|---|
 | `/help` | elenco comandi (Tab completa) |
+| `/setup` | configurazione guidata |
 | `/login [progetto]`, `/logout` | account Google per Gemini |
 | `/project <id>` | progetto Google Cloud usato con il login |
 | `/google-client <id> <secret> [project]` | client OAuth |
@@ -90,7 +117,7 @@ Gli agenti possono lavorare solo dentro la cartella in cui hai avviato just-Code
 | `/turbo` | attiva o disattiva TURBO |
 | `/status`, `/clear`, `/exit` | |
 
-Tasti: `Esc` interrompe il lavoro in corso, `Ctrl+C` due volte esce.
+Tasti: `Tab` completa, `↑/↓` suggerimenti e cronologia, `Esc` interrompe il lavoro in corso, `Ctrl+C` due volte esce.
 
 Opzioni da riga di comando: `just-code --turbo --orchestrator gemini:gemini-2.5-pro --sub groq:llama-3.3-70b-versatile --parallel 6 "prompt iniziale"`
 
@@ -107,7 +134,10 @@ src/
   agents/loop.ts          ciclo agente con tool-calling (tool eseguiti in parallelo)
   agents/orchestrator.ts  orchestratore + tool spawn_agents (pool parallelo di sub-agenti)
   tools/                  read_file, list_files, search, write_file, edit_file, run_shell
-  ui/                     Ink: logo animato, pannello agenti, permessi, animazione TURBO
+  core/                   comandi, autocompletamento, cronologia, configurazione guidata (condivisi da TUI e GUI)
+  ui/                     Ink: logo animato, prompt con suggerimenti, setup, pannello agenti, permessi, TURBO
+  gui/server.ts           server locale della GUI (SSE + API, solo 127.0.0.1 con token)
+gui/                      interfaccia grafica (HTML/CSS/JS, font IBM Plex Mono incluso)
 ```
 
 Ispirato all'esperienza d'uso di [Claude Code](https://github.com/anthropics/claude-code).

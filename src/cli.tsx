@@ -10,6 +10,8 @@ const VERSION: string = createRequire(import.meta.url)('../package.json').versio
 const HELP = `just-Code — terminal AI IDE (orchestrator + parallel sub-agents)
 
 Usage: just-code [options] [prompt]
+       just-code gui [--port <n>] [--no-open]   graphical interface (opens an app window)
+       just-code setup                         guided setup
 
 Options:
   --turbo                     start in TURBO mode (no confirmations)
@@ -19,11 +21,15 @@ Options:
   -h, --help                  show this help
   -v, --version               show version
 
-Inside the app type /help. Sign in to Gemini with /login (Google account).`;
+Inside the app type /help — Tab completes commands, @ completes file names.`;
 
 const argv = process.argv.slice(2);
 const cfg = loadConfig();
 const rest: string[] = [];
+let mode: 'tui' | 'gui' | 'setup' = 'tui';
+let port: number | undefined;
+let openWindow = true;
+if (argv[0] === 'gui' || argv[0] === 'setup') mode = argv.shift() as 'gui' | 'setup';
 for (let i = 0; i < argv.length; i++) {
   const a = argv[i];
   const next = () => argv[++i];
@@ -43,7 +49,20 @@ for (let i = 0; i < argv.length; i++) {
     if (a === '--sub') cfg.subagent = ref;
     else cfg.orchestrator = ref;
   } else if (a === '--parallel') cfg.maxParallel = Math.max(1, Number(next()) || cfg.maxParallel);
+  else if (a === '--gui') mode = 'gui';
+  else if (a === '--port') port = Number(next()) || undefined;
+  else if (a === '--no-open') openWindow = false;
   else rest.push(a);
+}
+
+if (mode === 'gui') {
+  const { startGui } = await import('./gui/server.js');
+  const { url } = await startGui({ cwd: process.cwd(), config: cfg, version: VERSION, port, open: openWindow });
+  console.log(`just-Code ${VERSION} GUI running for ${process.cwd()}
+  ${url}
+(keep this terminal open — Ctrl+C to quit)`);
+  process.on('SIGINT', () => process.exit(0));
+  await new Promise(() => {});
 }
 
 if (!process.stdin.isTTY) {
@@ -53,7 +72,7 @@ if (!process.stdin.isTTY) {
   process.exit(1);
 }
 
-const { waitUntilExit } = render(<App initialConfig={cfg} cwd={process.cwd()} initialPrompt={rest.join(' ') || undefined} />, {
+const { waitUntilExit } = render(<App initialConfig={cfg} cwd={process.cwd()} initialPrompt={rest.join(' ') || undefined} forceSetup={mode === 'setup'} />, {
   exitOnCtrlC: false,
 });
 await waitUntilExit();

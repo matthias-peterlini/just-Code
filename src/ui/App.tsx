@@ -1,24 +1,16 @@
-import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Box, Static, Text, useApp, useInput } from 'ink';
-import TextInput from 'ink-text-input';
 import { Orchestrator, type JustEvent } from '../agents/orchestrator.js';
-import {
-  CONFIG_FILE,
-  PROVIDER_IDS,
-  SUGGESTED_MODELS,
-  fmtRef,
-  googleOAuth,
-  parseModelRef,
-  providerSettings,
-  saveConfig,
-  type Config,
-  type ProviderId,
-} from '../config.js';
-import { NEED_PROJECT, NOT_CONNECTED } from '../providers/gemini.js';
-import { googleAccount, googleLogin, googleLogout, isGoogleLoggedIn } from '../auth/google.js';
+import { fmtRef, saveConfig, type Config } from '../config.js';
+import { NOT_CONNECTED } from '../providers/gemini.js';
+import { googleAccount } from '../auth/google.js';
+import { runCommand, type Tone } from '../core/commands.js';
+import { describeMentions, starterPrompts, type CompleteContext } from '../core/complete.js';
+import { PromptHistory } from '../core/history.js';
+import { hasCredentials, needsSetup } from '../core/setup.js';
+import { listWorkspaceFiles } from '../tools/index.js';
+import { PromptInput } from './PromptInput.js';
+import { Setup } from './Setup.js';
 import type { PermissionRequest } from '../tools/index.js';
 import { AgentPanel, type AgentView } from './AgentPanel.js';
 import { AnimatedLogo, StaticLogo } from './Logo.js';
@@ -39,29 +31,14 @@ type Item =
 
 type NewItem = Item extends infer T ? (T extends Item ? Omit<T, 'id'> : never) : never;
 
-const COMMANDS: [string, string][] = [
-  ['/help', 'show commands'],
-  ['/login', '[project-id] — log in with Google; usage is billed to your own Google Cloud project'],
-  ['/project', '<project-id> — Google Cloud project used with the Google login'],
-  ['/logout', 'log out of Google'],
-  ['/google-client', '<client_secret.json> | <id> <secret> — override the built-in OAuth client'],
-  ['/key', '<provider> <api_key> — save an API key (groq, openrouter, openai, gemini, custom)'],
-  ['/baseurl', '<provider> <url> — custom OpenAI-compatible endpoint'],
-  ['/model', '<orchestrator|sub> <provider:model> — choose models'],
-  ['/models', 'list suggested models'],
-  ['/turbo', 'toggle TURBO mode (no confirmations)'],
-  ['/parallel', '<n> — max sub-agents running at once'],
-  ['/status', 'show configuration'],
-  ['/clear', 'clear the conversation'],
-  ['/exit', 'quit'],
-];
+const TONE: Record<Tone, string> = { info: C.gray, ok: C.green, warn: C.yellow, error: C.red, accent: C.orange, link: C.blue };
 
 interface Pending {
   req: PermissionRequest;
   resolve: (ok: boolean) => void;
 }
 
-export function App({ initialConfig, cwd, initialPrompt }: { initialConfig: Config; cwd: string; initialPrompt?: string }) {
+export function App({ initialConfig, cwd, initialPrompt, forceSetup }: { initialConfig: Config; cwd: string; initialPrompt?: string; forceSetup?: boolean }) {
   const { exit } = useApp();
   const [config, setConfigState] = useState(initialConfig);
   const cfgRef = useRef(config);
@@ -80,7 +57,10 @@ export function App({ initialConfig, cwd, initialPrompt }: { initialConfig: Conf
   const push = useCallback((it: NewItem) => setItems((xs) => [...xs, { ...it, id: ++idRef.current } as Item]), []);
 
   const [splash, setSplash] = useState(true);
-  const [input, setInput] = useState('');
+  const [setup, setSetup] = useState(false);
+  const history = useMemo(() => new PromptHistory(), []);
+  const [files, setFiles] = useState<string[]>([]);
+  const [started, setStarted] = useState(false);
   const [busy, setBusy] = useState(false);
   const [orchStatus, setOrchStatus] = useState('thinking…');
   const [agents, setAgents] = useState<AgentView[]>([]);
@@ -156,14 +136,23 @@ export function App({ initialConfig, cwd, initialPrompt }: { initialConfig: Conf
     const t = setTimeout(() => {
       setSplash(false);
       push({ kind: 'header' });
-      if (initialConfig.orchestrator.provider === 'gemini' && !isGoogleLoggedIn() && !providerSettings(initialConfig, 'gemini').apiKey)
-        push({ kind: 'info', text: NOT_CONNECTED, color: C.yellow });
+      if (forceSetup || needsSetup(initialConfig)) setSetup(true);
+      else if (initialConfig.orchestrator.provider === 'gemini' && !hasCredentials(initialConfig))
+        push({ kind: 'info', text: NOT_CONNECTED + '  (or /setup)', color: C.yellow });
       if (initialConfig.turbo) setTurboAnim(true);
       if (initialPrompt) void submit(initialPrompt);
     }, 1700);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // workspace files for @mentions (refreshed after every turn)
+  const refreshFiles = useCallback(() => {
+    void listWorkspaceFiles(cwd).then(setFiles);
+  }, [cwd]);
+  useEffect(refreshFiles, [refreshFiles]);
+  const completeCtx: CompleteContext = useMemo(() => ({ cwd, config, files, history: history.items }), [cwd, config, files, history, started, busy]);
+  const starters = useMemo(() => (started ? [] : starterPrompts(cwd)), [cwd, started]);
 
   // --- turbo ---------------------------------------------------------------
   const setTurbo = (on: boolean) => {
@@ -208,143 +197,44 @@ export function App({ initialConfig, cwd, initialPrompt }: { initialConfig: Conf
       loginAbort.current?.abort();
       push({ kind: 'info', text: '⏹  interrupted', color: C.yellow });
     }
-    if (key.tab && input.startsWith('/')) {
-      const m = COMMANDS.find(([c]) => c.startsWith(input));
-      if (m) setInput(m[0] + ' ');
-    }
   });
 
   // --- commands ------------------------------------------------------------
-  const command = async (line: string) => {
-    const [cmd, ...args] = line.trim().split(/\s+/);
-    const cfg = cfgRef.current;
-    switch (cmd) {
-      case '/help':
-        push({ kind: 'info', text: COMMANDS.map(([c, d]) => `${c.padEnd(15)} ${d}`).join('\n') });
-        break;
-      case '/exit':
-      case '/quit':
-        exit();
-        break;
-      case '/clear':
-        orch.reset();
-        push({ kind: 'info', text: '✨ conversation cleared', color: C.gray });
-        break;
-      case '/turbo':
-        setTurbo(args[0] ? args[0] === 'on' : !cfg.turbo);
-        break;
-      case '/login': {
-        let loginCfg = cfg;
-        if (args[0]) {
-          loginCfg = { ...cfg, google: { ...cfg.google, quotaProject: args[0] } };
-          setConfig(loginCfg);
-        }
-        const g = googleOAuth(loginCfg);
+  const command = (line: string) =>
+    runCommand(line, {
+      cwd,
+      orch,
+      getConfig: () => cfgRef.current,
+      setConfig,
+      say: (text, tone = 'info') => push(tone === 'error' ? { kind: 'error', text } : { kind: 'info', text, color: TONE[tone] }),
+      setTurbo,
+      setBusy: (b, status) => {
+        setBusy(b);
+        if (status) setOrchStatus(status);
+        if (!b) loginAbort.current = null;
+      },
+      newAbort: () => {
         loginAbort.current = new AbortController();
-        setBusy(true);
-        setOrchStatus('waiting for Google login in the browser…');
-        try {
-          const email = await googleLogin(g, (url) => push({ kind: 'info', text: `🌐 Opening the browser to sign in with Google.\nIf it does not open, visit:\n${url}`, color: C.blue }), loginAbort.current.signal);
-          setAccount(email);
-          push({ kind: 'info', text: `✔ Logged in with Google${email ? ` as ${email}` : ''}.`, color: C.green });
-          if (g.quotaProject) push({ kind: 'info', text: `Gemini is ready — usage billed to your project ${g.quotaProject}.`, color: C.green });
-          else push({ kind: 'info', text: NEED_PROJECT, color: C.yellow });
-        } catch (e) {
-          push({ kind: 'error', text: (e as Error).message });
-        } finally {
-          setBusy(false);
-          loginAbort.current = null;
-        }
-        break;
-      }
-      case '/project': {
-        if (!args[0]) return push({ kind: 'error', text: 'Usage: /project <google-cloud-project-id>' });
-        setConfig({ ...cfg, google: { ...cfg.google, quotaProject: args[0] } });
-        push({ kind: 'info', text: `✔ Google login usage now billed to project ${args[0]}.`, color: C.green });
-        break;
-      }
-      case '/logout':
-        push({ kind: 'info', text: googleLogout() ? 'Logged out of Google.' : 'Not logged in.', color: C.gray });
-        setAccount(undefined);
-        break;
-      case '/google-client': {
-        if (!args[0]) return push({ kind: 'error', text: 'Usage: /google-client <client_secret.json> | <client_id> <client_secret> [quota_project]' });
-        let google = { clientId: args[0], clientSecret: args[1], quotaProject: args[2] };
-        if (args[0].endsWith('.json')) {
-          try {
-            const file = args[0].replace(/^~(?=\/)/, os.homedir());
-            const j = JSON.parse(fs.readFileSync(path.resolve(cwd, file), 'utf8'));
-            const c = j.installed ?? j.web ?? j;
-            google = { clientId: c.client_id, clientSecret: c.client_secret, quotaProject: args[1] ?? c.project_id };
-          } catch (e) {
-            return push({ kind: 'error', text: `Cannot read ${args[0]}: ${(e as Error).message}` });
-          }
-        }
-        setConfig({ ...cfg, google });
-        push({ kind: 'info', text: '✔ Google OAuth client saved. Now run /login.', color: C.green });
-        break;
-      }
-      case '/key': {
-        const p = args[0] as ProviderId;
-        if (!PROVIDER_IDS.includes(p) || !args[1]) return push({ kind: 'error', text: `Usage: /key <${PROVIDER_IDS.join('|')}> <api_key>` });
-        setConfig({ ...cfg, providers: { ...cfg.providers, [p]: { ...cfg.providers[p], apiKey: args[1] } } });
-        push({ kind: 'info', text: `✔ API key for ${p} saved in ${CONFIG_FILE}`, color: C.green });
-        break;
-      }
-      case '/baseurl': {
-        const p = args[0] as ProviderId;
-        if (!PROVIDER_IDS.includes(p) || !args[1]) return push({ kind: 'error', text: 'Usage: /baseurl <provider> <url>' });
-        setConfig({ ...cfg, providers: { ...cfg.providers, [p]: { ...cfg.providers[p], baseUrl: args[1] } } });
-        push({ kind: 'info', text: `✔ ${p} → ${args[1]}`, color: C.green });
-        break;
-      }
-      case '/model': {
-        const which = args[0];
-        const ref = args[1] ? parseModelRef(args[1]) : null;
-        if (!['orchestrator', 'sub'].includes(which) || !ref)
-          return push({ kind: 'error', text: 'Usage: /model <orchestrator|sub> <provider:model>   e.g. /model sub groq:llama-3.3-70b-versatile' });
-        setConfig(which === 'sub' ? { ...cfg, subagent: ref } : { ...cfg, orchestrator: ref });
-        push({ kind: 'info', text: `✔ ${which} → ${fmtRef(ref)}`, color: C.green });
-        break;
-      }
-      case '/models':
-        push({ kind: 'info', text: PROVIDER_IDS.map((p) => `${p.padEnd(11)} ${SUGGESTED_MODELS[p].join(', ')}`).join('\n') + '\n(any model id supported by the provider works)' });
-        break;
-      case '/parallel': {
-        const n = Number(args[0]);
-        if (!(n >= 1 && n <= 32)) return push({ kind: 'error', text: 'Usage: /parallel <1-32>' });
-        setConfig({ ...cfg, maxParallel: n });
-        push({ kind: 'info', text: `✔ up to ${n} sub-agents in parallel`, color: C.green });
-        break;
-      }
-      case '/status': {
-        const keys = PROVIDER_IDS.map((p) => `${p}:${providerSettings(cfg, p).apiKey ? '✔' : '·'}`).join('  ');
-        push({
-          kind: 'info',
-          text:
-            `orchestrator  ${fmtRef(cfg.orchestrator)}\nsub-agents    ${fmtRef(cfg.subagent)}  (max ${cfg.maxParallel} parallel)\n` +
-            `google login  ${isGoogleLoggedIn() ? `✔ ${googleAccount() ?? ''}` : '✘ (/login)'}  project ${googleOAuth(cfg).quotaProject ?? '✘ (/project)'}\napi keys      ${keys}\n` +
-            `turbo         ${cfg.turbo ? 'ON ⚡' : 'off'}\nworkspace     ${cwd}\nconfig        ${CONFIG_FILE}`,
-        });
-        break;
-      }
-      default:
-        push({ kind: 'error', text: `Unknown command ${cmd}. Type /help.` });
-    }
-  };
+        return loginAbort.current.signal;
+      },
+      onAccount: setAccount,
+      openSetup: () => setSetup(true),
+      exit,
+    });
 
   const submit = async (raw: string) => {
     const text = raw.trim();
-    setInput('');
     if (!text) return;
+    history.add(text);
     if (text.startsWith('/')) return command(text);
     if (busy) return;
+    setStarted(true);
     push({ kind: 'user', text });
     setBusy(true);
     agentsRef.current = [];
     setAgents([]);
     try {
-      const answerText = await orch.send(text);
+      const answerText = await orch.send(describeMentions(text, files));
       if (agentsRef.current.length) push({ kind: 'agents', agents: agentsRef.current });
       if (answerText.trim()) push({ kind: 'assistant', text: answerText });
     } catch (e) {
@@ -354,10 +244,9 @@ export function App({ initialConfig, cwd, initialPrompt }: { initialConfig: Conf
       agentsRef.current = [];
       setAgents([]);
       setBusy(false);
+      refreshFiles();
     }
   };
-
-  const suggestions = input.startsWith('/') && !input.includes(' ') ? COMMANDS.filter(([c]) => c.startsWith(input)) : [];
 
   if (splash)
     return (
@@ -383,23 +272,27 @@ export function App({ initialConfig, cwd, initialPrompt }: { initialConfig: Conf
 
       {queue.length > 0 && !turboAnim && <PermissionPrompt req={queue[0].req} queued={queue.length - 1} onAnswer={answer} />}
 
-      {!busy && queue.length === 0 && (
-        <Box flexDirection="column">
-          <Box borderStyle="round" borderColor={config.turbo ? C.orange : C.dim} paddingX={1}>
-            <Text color={C.orange} bold>
-              {'❯ '}
-            </Text>
-            <TextInput value={input} onChange={setInput} onSubmit={submit} placeholder="Ask just-Code to build something…  (/help)" />
-          </Box>
-          {suggestions.map(([c, d]) => (
-            <Text key={c}>
-              {'  '}
-              <Text color={C.orange}>{c.padEnd(15)}</Text>
-              <Text color={C.dim}>{d}</Text>
-            </Text>
-          ))}
-        </Box>
+      {setup && (
+        <Setup
+          config={config}
+          onCancel={() => {
+            setSetup(false);
+            push({ kind: 'info', text: 'Setup skipped — run /setup any time.', color: C.gray });
+          }}
+          onDone={(c) => {
+            setSetup(false);
+            setConfig(c);
+            push({
+              kind: 'info',
+              text: `✔ All set!  orchestrator ${fmtRef(c.orchestrator)} → sub-agents ${fmtRef(c.subagent)} · ${c.turbo ? '⚡ TURBO' : '🔒 ask before acting'}`,
+              color: C.green,
+            });
+            if (c.turbo) setTurboAnim(true);
+          }}
+        />
       )}
+
+      {!busy && !setup && queue.length === 0 && <PromptInput ctx={completeCtx} starters={starters} turbo={config.turbo} onSubmit={submit} />}
       <StatusBar config={config} tokens={tokens} account={account} />
     </Box>
   );
@@ -437,7 +330,7 @@ export function ItemView({ it, config, cwd }: { it: Item; config: Config; cwd: s
               <Text color={C.gray}>orchestrator + parallel sub-agents</Text>,
               <Text color={C.dim}>{cwd}</Text>,
               <Text color={C.dim}>
-                /help for commands · /login for Gemini · <Text color={C.orange}>/turbo</Text> for full autonomy
+                / commands · @ files · Tab completes · <Text color={C.orange}>/turbo</Text> full autonomy
               </Text>,
             ]}
           />

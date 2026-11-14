@@ -29,6 +29,8 @@ export interface Config {
   subagent: ModelRef;
   providers: Partial<Record<ProviderId, ProviderSettings>>;
   google: GoogleOAuthSettings;
+  /** Set once the guided setup has been completed (or skipped). */
+  setupDone?: boolean;
   turbo: boolean;
   maxParallel: number;
   maxSteps: number;

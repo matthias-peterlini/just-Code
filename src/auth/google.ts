@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
-import { spawn } from 'node:child_process';
+import { openBrowser } from '../core/open.js';
 import { CONFIG_DIR, type GoogleOAuthSettings } from '../config.js';
 
 /**
@@ -55,23 +55,6 @@ export function googleLogout(): boolean {
   if (!fs.existsSync(AUTH_FILE)) return false;
   fs.rmSync(AUTH_FILE);
   return true;
-}
-
-function openBrowser(url: string) {
-  // Windows: `start` in cmd would cut the URL at the first "&", so use the URL protocol handler.
-  const [cmd, args] =
-    process.platform === 'win32'
-      ? ['rundll32', ['url.dll,FileProtocolHandler', url]]
-      : process.platform === 'darwin'
-        ? ['open', [url]]
-        : ['xdg-open', [url]];
-  try {
-    const child = spawn(cmd, args as string[], { stdio: 'ignore', detached: true, windowsHide: true });
-    child.on('error', () => {});
-    child.unref();
-  } catch {
-    /* the URL is also shown in the UI */
-  }
 }
 
 /**
@@ -138,7 +121,7 @@ export async function googleLogin(
           prompt: 'consent',
         }).toString();
       onUrl(url);
-      openBrowser(url);
+      void openBrowser(url);
     });
     const timeout = setTimeout(() => {
       server.close();

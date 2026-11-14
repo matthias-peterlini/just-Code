@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>just-Code</title>
+<link rel="icon" href="logo.svg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><img src="logo.svg" alt="" width="26" height="26"><b>just-Code</b><span class="cwd" id="cwd"></span></div>
+  <div class="chips">
+    <button class="chip" id="models" title="Models — /model">…</button>
+    <label class="turbo" title="TURBO: agents act without asking">
+      <input type="checkbox" id="turbo"><span class="track"><span class="knob"></span></span><span class="tl">TURBO</span>
+    </label>
+    <button class="icon" id="settings" title="Setup">⚙</button>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="chat" id="chat" aria-live="polite">
+    <div class="empty" id="empty">
+      <img src="logo.svg" alt="" width="64" height="64">
+      <h1>What should we build?</h1>
+      <p>The orchestrator plans the work and hands it to sub-agents running in parallel.</p>
+      <div class="starters" id="starters"></div>
+    </div>
+    <div id="items"></div>
+    <div class="working" id="working" hidden><span class="spin"></span><span id="status">thinking…</span></div>
+  </section>
+  <aside class="agentbar" id="agents" hidden>
+    <h2>Sub-agents <span id="agentCount"></span></h2>
+    <div id="agentList"></div>
+  </aside>
+</main>
+
+<footer class="composer">
+  <div class="suggest" id="suggest" hidden></div>
+  <div class="box" id="box">
+    <span class="prompt">❯</span>
+    <textarea id="input" rows="1" placeholder="Ask just-Code to build something…   / commands · @ files" autocomplete="off" spellcheck="false"></textarea>
+    <button class="send" id="send" title="Send (Enter)">Send</button>
+  </div>
+  <div class="hints"><span>Enter send · Shift+Enter new line · Tab complete · ↑↓ pick</span><span id="tokens">↑0 ↓0</span></div>
+</footer>
+
+<div class="modal" id="perm" hidden>
+  <div class="card">
+    <div class="ph"><span class="q">?</span> <b id="permAgent"></b> wants to <b class="o" id="permTool"></b> <span class="muted" id="permQueue"></span></div>
+    <p id="permSummary"></p>
+    <pre class="diff" id="permDetail" hidden></pre>
+    <div class="actions">
+      <button data-a="yes" class="primary">Yes <kbd>Y</kbd></button>
+      <button data-a="always">Always for this tool <kbd>A</kbd></button>
+      <button data-a="no">No <kbd>N</kbd></button>
+      <button data-a="turbo" class="turbo-btn">TURBO ⚡ <kbd>T</kbd></button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="setup" hidden>
+  <div class="card wide">
+    <div class="sh"><b>◆ just-Code setup</b><span class="muted" id="stepNo"></span><button class="icon" id="setupClose" title="Close">✕</button></div>
+    <div class="progress"><span id="progress"></span></div>
+    <div id="setupBody"></div>
+  </div>
+</div>
+
+<div class="burst" id="burst" hidden><div class="word">TURBO</div></div>
+
+<script src="app.js"></script>
+</body>
+</html>

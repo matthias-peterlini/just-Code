@@ -36,5 +36,42 @@ assert.match(slow, /timed out/);
 assert.ok(Date.now() - t0 < 10000, 'timeout kills the process');
 
 assert.deepEqual(asked, ['write_file', 'edit_file', 'run_shell', 'run_shell']);
+
+// --- autocomplete + setup (pure logic) ---
+process.env.JUST_CODE_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'jc-home-'));
+const { complete, fuzzyScore, ghostText, describeMentions } = await import('../dist/core/complete.js');
+const { applySetup, presetById, needsSetup } = await import('../dist/core/setup.js');
+const { defaultConfig } = await import('../dist/config.js');
+const cfg = defaultConfig();
+const cctx = { cwd, config: cfg, files: ['src/a/b.txt', 'crlf.txt', 'src/app/main.ts'], history: ['fix the login bug'] };
+assert.equal(complete('/mo', cctx)[0].value, '/model ');
+assert.ok(complete('/mod', cctx).some((s) => s.label === '/models'));
+assert.equal(complete('/model s', cctx)[0].value, '/model sub ');
+assert.ok(complete('/model sub groq:ll', cctx)[0].value.startsWith('/model sub groq:llama'));
+assert.equal(complete('/key gr', cctx)[0].value, '/key groq ');
+assert.equal(complete('look at @mai', cctx)[0].value, 'look at src/app/main.ts '.replace('src', '@src'));
+assert.equal(complete('fix t', cctx)[0].kind, 'history');
+assert.equal(ghostText('/mo', complete('/mo', cctx)[0]), 'del ');
+assert.ok(fuzzyScore('mts', 'src/app/main.ts') > 0 && fuzzyScore('zzz', 'main.ts') < 0);
+assert.match(describeMentions('check @crlf.txt', cctx.files), /Files referenced with @: crlf\.txt/);
+assert.equal(needsSetup(cfg), true);
+const done = applySetup(cfg, { preset: presetById('groq'), apiKey: 'k', orchestrator: 'openai/gpt-oss-120b', sub: 'llama-3.3-70b-versatile', turbo: false });
+assert.equal(done.providers.groq.apiKey, 'k');
+assert.deepEqual(done.subagent, { provider: 'groq', model: 'llama-3.3-70b-versatile' });
+assert.equal(needsSetup(done), false);
+
+// --- GUI server ---
+const { startGui } = await import('../dist/gui/server.js');
+const gui = await startGui({ cwd, config: done, version: 'test', open: false });
+const base = gui.url.replace(/\/#.*/, '');
+const tok = gui.url.split('#')[1];
+assert.equal((await fetch(base + '/')).status, 200);
+assert.equal((await fetch(base + '/app.js')).status, 200);
+assert.equal((await fetch(base + '/../package.json')).status, 404);
+assert.equal((await fetch(base + '/api/history')).status, 401);
+const sg = await (await fetch(base + '/api/complete?q=%2Fset', { headers: { 'x-jc-token': tok } })).json();
+assert.equal(sg[0].value, '/setup');
+gui.close();
+
 fs.rmSync(cwd, { recursive: true, force: true });
 console.log('smoke ok');

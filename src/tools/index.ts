@@ -302,3 +302,10 @@ export const TOOLS: Record<string, Tool> = {
 };
 
 export const ALL_TOOL_NAMES = Object.keys(TOOLS);
+
+/** Workspace files (posix paths, ignoring node_modules, .git, dist…) — used for @file completion. */
+export async function listWorkspaceFiles(cwd: string, limit = 5000): Promise<string[]> {
+  const out: string[] = [];
+  await walk(cwd, cwd, out, limit);
+  return out;
+}
